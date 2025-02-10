@@ -5,19 +5,20 @@ import Markdownify from '../Chat/Markdownify';
 import { parseButtons, parseOptions } from '../../utils/parse-utils';
 import ButtonMessage from '../ButtonMessage';
 import OptionMessage from '../OptionMessage';
-import {useToast} from "../../hooks/useToast";
 import {useTranslation} from "react-i18next";
+import { ToastContextType } from "../../context";
 
 type ChatMessageProps = {
     message: Message;
     onMessageClick?: (message: Message) => void;
+    toastContext: ToastContextType | null;
 };
 
-const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick }) => {
+const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick, toastContext }) => {
     const buttons = useMemo(() => parseButtons(message), [message.buttons]);
     const options = useMemo(() => parseOptions(message), [message.options]);
     const { t } = useTranslation();
-    const toast = useToast();
+    const toast = toastContext;
 
     const handleContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
@@ -25,14 +26,14 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick }) => {
         navigator.clipboard
             .writeText(content)
             .then(() => {
-                toast.open({
+                toast?.open({
                     type: 'success',
                     title: t('global.notification'),
                     message: t('toast.copied'),
                 });
             })
             .catch((err) => {
-                toast.open({
+                toast?.open({
                     type: 'error',
                     title: t('global.notification'),
                     message: err?.message,

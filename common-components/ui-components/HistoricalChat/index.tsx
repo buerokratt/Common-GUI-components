@@ -12,6 +12,7 @@ import './HistoricalChat.scss';
 import { apiDev } from '../../services/api';
 import ChatEvent from '../../ui-components/ChatEvent';
 import { AUTHOR_ROLES } from '../../utils/constants';
+import { ToastContextType } from "../../context";
 
 type ChatProps = {
     chat: ChatType;
@@ -22,6 +23,7 @@ type ChatProps = {
     selectedStatus: string | null;
     showComment?: boolean;
     showStatus?: boolean;
+    toastContext: ToastContextType | null;
 };
 
 type GroupedMessage = {
@@ -50,6 +52,7 @@ const HistoricalChat: FC<ChatProps> = ({
                                            onCommentChange,
                                            showComment = true,
                                            showStatus = true,
+                                           toastContext,
                                        }) => {
     const { t } = useTranslation();
     const chatRef = useRef<HTMLDivElement>(null);
@@ -58,7 +61,7 @@ const HistoricalChat: FC<ChatProps> = ({
     const [messagesList, setMessagesList] = useState<Message[]>([]);
     const [status, setStatus] = useState<string | null>(selectedStatus ?? null);
     const [lastMessage, setLastMessage] = useState<Message>();
-    const [statuses, setStatuses] = useState(chatStatuses);
+    const [statuses, setStatuses] = useState(chatStatuses);    
 
     useEffect(() => {
         getMessages();
@@ -222,6 +225,7 @@ const HistoricalChat: FC<ChatProps> = ({
                                             <ChatMessage
                                                 message={message}
                                                 key={`${message.id ?? ''}-${i}`}
+                                                toastContext={toastContext}
                                             />
                                         ))}
                                     </div>

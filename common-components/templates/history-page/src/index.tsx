@@ -94,7 +94,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                 : new Date(
                     new Date().getUTCFullYear(),
                     new Date().getUTCMonth(),
-                    new Date().getUTCDate() + 1
+                    new Date().getUTCDate()
                 ),
         },
     });
@@ -319,7 +319,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                 sorting,
                 search,
             });
-            toast.open({
+            toast?.open({
                 type: 'success',
                 title: t('global.notification'),
                 message: t('toast.success.chatStatusChanged'),
@@ -327,7 +327,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
             setStatusChangeModal(null);
         },
         onError: (error: AxiosError) => {
-            toast.open({
+            toast?.open({
                 type: 'error',
                 title: t('global.notificationError'),
                 message: error.message,
@@ -354,14 +354,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                     commentAddedDate: res.data.response[0].created,
                     commentAuthor: res.data.response[0].authorDisplayName,
                 });
-            toast.open({
+            toast?.open({
                 type: 'success',
                 title: t('global.notification'),
                 message: t('toast.success.chatCommentChanged'),
             });
         },
         onError: (error: AxiosError) => {
-            toast.open({
+            toast?.open({
                 type: 'error',
                 title: t('global.notificationError'),
                 message: error.message,
@@ -374,7 +374,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
     const copyValueToClipboard = async (value: string) => {
         await navigator.clipboard.writeText(value);
 
-        toast.open({
+        toast?.open({
             type: 'success',
             title: t('global.notification'),
             message: t('toast.success.copied'),
@@ -807,6 +807,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                                     onChatStatusChange={setStatusChangeModal}
                                     selectedStatus={chatState}
                                     onCommentChange={handleCommentChange}
+                                    toastContext={toastContext}
                                 />
                             </Drawer>
                         </div>
