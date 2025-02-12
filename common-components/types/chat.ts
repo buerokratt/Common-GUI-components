@@ -83,6 +83,8 @@ export interface Chat {
     commentAddedDate?: string;
     commentAuthor?: string;
     labels: string;
+    rating?: string;
+    feedback?: string;
     feedbackText?: string;
     feedbackRating?: number;
     nps?: number;

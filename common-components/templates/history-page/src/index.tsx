@@ -35,9 +35,12 @@ import {ToastContextType} from "../../../context";
 type HistoryProps = {
     user: UserInfo | null;
     toastContext: ToastContextType | null;
+    onMessageClick?: (message: any) => void;
+    showComment?: boolean;
+    showStatus?: boolean;
 }
 
-const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) => {
+const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, onMessageClick, showComment = true, showStatus = true}) => {
     const {t, i18n} = useTranslation();
     const toast = toastContext;
     const userInfo = user;
@@ -66,7 +69,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
         right: ['detail'],
     };
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [endedChatsList, setEndedChatsList] = useState<ChatType[]>([]);
     const [initialLoad, setInitialLoad] = useState<boolean>(true);
     const [filteredEndedChatsList, setFilteredEndedChatsList] = useState<
         ChatType[]
@@ -473,20 +475,20 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                         i18n.language === 'et' ? {locale: et} : undefined
                     ),
             }),
-            columnHelper.accessor(
-                (row) =>
-                    `${
-                        row.customerSupportId === 'chatbot'
-                            ? row.customerSupportDisplayName
-                            : row.customerSupportId
-                                ? `${row.customerSupportFirstName ?? ''} ${row.customerSupportLastName ?? ''}`
-                                : '-'
-                    }`,
-                {
-                    id: `customerSupportFullName`,
-                    header: t('chat.history.csaName') ?? '',
-                }
-            ),
+            columnHelper.accessor('customerSupportDisplayName', {
+               id: 'customerSupportDisplayName',
+               header: i18n.t('chat.history.csaName') || '',
+               cell: (info) => {
+                 const row = info.row.original;
+                 const lastMessage = row.lastMessage;
+                 const displayName = info.getValue();
+                 if(displayName) {
+                   return displayName;
+                 } else {
+                   return lastMessage.startsWith('Suunan') ? 'Bürokratt' :  '\u00A0-';
+                 }
+               },
+            }),
             columnHelper.accessor(
                 (row) => `${row.endUserFirstName} ${row.endUserLastName}`,
                 {
@@ -508,13 +510,13 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                 header: t('chat.history.comment') ?? '',
                 cell: commentView,
             }),
-            columnHelper.accessor('feedbackRating', {
+            columnHelper.accessor('rating', {
                 id: 'feedbackRating',
                 header: t('chat.history.rating') ?? '',
                 cell: (props) =>
                     props.getValue() && <span>{`${props.getValue()}/10`}</span>,
             }),
-            columnHelper.accessor('feedbackText', {
+            columnHelper.accessor('feedback', {
                 id: 'feedbackText',
                 header: t('chat.history.feedback') ?? '',
                 cell: feedbackTextView,
@@ -808,6 +810,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                                     selectedStatus={chatState}
                                     onCommentChange={handleCommentChange}
                                     toastContext={toastContext}
+                                    showComment={showComment}
+                                    showStatus={showStatus}
+                                    onMessageClick={(message) => {
+                                        onMessageClick?.(message);
+                                    }}
                                 />
                             </Drawer>
                         </div>

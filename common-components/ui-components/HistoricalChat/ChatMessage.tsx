@@ -55,7 +55,7 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick, toastConte
                     dateTime={message.created}
                     className="historical-chat__message-date"
                 >
-                    {format(new Date(message.created), 'HH:mm:ss')}
+                    {format(new Date(message.created ?? ''), 'HH:mm:ss')}
                 </time>
             </div>
             {buttons.length > 0 && <ButtonMessage buttons={buttons} />}
