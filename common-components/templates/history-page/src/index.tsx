@@ -475,20 +475,16 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                         i18n.language === 'et' ? {locale: et} : undefined
                     ),
             }),
-            columnHelper.accessor('customerSupportDisplayName', {
-               id: 'customerSupportDisplayName',
-               header: i18n.t('chat.history.csaName') || '',
-               cell: (info) => {
-                 const row = info.row.original;
-                 const lastMessage = row.lastMessage;
-                 const displayName = info.getValue();
-                 if(displayName) {
-                   return displayName;
-                 } else {
-                   return lastMessage.startsWith('Suunan') ? 'Bürokratt' :  '\u00A0-';
-                 }
-               },
-            }),
+            columnHelper.accessor(
+               (row) => {
+                const customerSupportIdCheck = row.customerSupportId ? `${row.customerSupportFirstName ?? ""} ${row.customerSupportLastName ?? ""}`: "-";
+                return `${ row.customerSupportId === "chatbot" ? row.customerSupportDisplayName : customerSupportIdCheck }`;
+                },
+                {
+                  id: `customerSupportFullName`,
+                  header: t('chat.history.csaName') ?? '',
+                }
+            ),
             columnHelper.accessor(
                 (row) => `${row.endUserFirstName} ${row.endUserLastName}`,
                 {
