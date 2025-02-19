@@ -35,9 +35,12 @@ import {ToastContextType} from "../../../context";
 type HistoryProps = {
     user: UserInfo | null;
     toastContext: ToastContextType | null;
+    onMessageClick?: (message: any) => void;
+    showComment?: boolean;
+    showStatus?: boolean;
 }
 
-const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) => {
+const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, onMessageClick, showComment = true, showStatus = true}) => {
     const {t, i18n} = useTranslation();
     const toast = toastContext;
     const userInfo = user;
@@ -66,7 +69,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
         right: ['detail'],
     };
     const [totalPages, setTotalPages] = useState<number>(1);
-    const [endedChatsList, setEndedChatsList] = useState<ChatType[]>([]);
     const [initialLoad, setInitialLoad] = useState<boolean>(true);
     const [filteredEndedChatsList, setFilteredEndedChatsList] = useState<
         ChatType[]
@@ -94,7 +96,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                 : new Date(
                     new Date().getUTCFullYear(),
                     new Date().getUTCMonth(),
-                    new Date().getUTCDate() + 1
+                    new Date().getUTCDate()
                 ),
         },
     });
@@ -319,7 +321,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                 sorting,
                 search,
             });
-            toast.open({
+            toast?.open({
                 type: 'success',
                 title: t('global.notification'),
                 message: t('toast.success.chatStatusChanged'),
@@ -327,7 +329,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
             setStatusChangeModal(null);
         },
         onError: (error: AxiosError) => {
-            toast.open({
+            toast?.open({
                 type: 'error',
                 title: t('global.notificationError'),
                 message: error.message,
@@ -354,14 +356,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                     commentAddedDate: res.data.response[0].created,
                     commentAuthor: res.data.response[0].authorDisplayName,
                 });
-            toast.open({
+            toast?.open({
                 type: 'success',
                 title: t('global.notification'),
                 message: t('toast.success.chatCommentChanged'),
             });
         },
         onError: (error: AxiosError) => {
-            toast.open({
+            toast?.open({
                 type: 'error',
                 title: t('global.notificationError'),
                 message: error.message,
@@ -374,7 +376,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
     const copyValueToClipboard = async (value: string) => {
         await navigator.clipboard.writeText(value);
 
-        toast.open({
+        toast?.open({
             type: 'success',
             title: t('global.notification'),
             message: t('toast.success.copied'),
@@ -474,17 +476,13 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                     ),
             }),
             columnHelper.accessor(
-                (row) =>
-                    `${
-                        row.customerSupportId === 'chatbot'
-                            ? row.customerSupportDisplayName
-                            : row.customerSupportId
-                                ? `${row.customerSupportFirstName ?? ''} ${row.customerSupportLastName ?? ''}`
-                                : '-'
-                    }`,
+               (row) => {
+                const customerSupportIdCheck = row.customerSupportId ? `${row.customerSupportFirstName ?? ""} ${row.customerSupportLastName ?? ""}`: "-";
+                return `${ row.customerSupportId === "chatbot" ? row.customerSupportDisplayName : customerSupportIdCheck }`;
+                },
                 {
-                    id: `customerSupportFullName`,
-                    header: t('chat.history.csaName') ?? '',
+                  id: `customerSupportFullName`,
+                  header: t('chat.history.csaName') ?? '',
                 }
             ),
             columnHelper.accessor(
@@ -807,6 +805,12 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext}) 
                                     onChatStatusChange={setStatusChangeModal}
                                     selectedStatus={chatState}
                                     onCommentChange={handleCommentChange}
+                                    toastContext={toastContext}
+                                    showComment={showComment}
+                                    showStatus={showStatus}
+                                    onMessageClick={(message) => {
+                                        onMessageClick?.(message);
+                                    }}
                                 />
                             </Drawer>
                         </div>
