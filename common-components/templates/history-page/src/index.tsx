@@ -506,13 +506,13 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                 header: t('chat.history.comment') ?? '',
                 cell: commentView,
             }),
-            columnHelper.accessor('rating', {
+            columnHelper.accessor('feedbackRating', {
                 id: 'feedbackRating',
                 header: t('chat.history.rating') ?? '',
                 cell: (props) =>
                     props.getValue() && <span>{`${props.getValue()}/10`}</span>,
             }),
-            columnHelper.accessor('feedback', {
+            columnHelper.accessor('feedbackText', {
                 id: 'feedbackText',
                 header: t('chat.history.feedback') ?? '',
                 cell: feedbackTextView,
