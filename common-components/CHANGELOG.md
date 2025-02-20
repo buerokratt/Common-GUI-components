@@ -2,6 +2,10 @@
 All changes to this project will be documented in this file.
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.4] - 20-02-2025
+
+- Fixed context export
+
 ## [0.0.3] - 19-02-2025
 
 - Changed rating & feedback to feedbackRating and feedbackText
