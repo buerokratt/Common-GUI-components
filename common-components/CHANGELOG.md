@@ -2,6 +2,10 @@
 All changes to this project will be documented in this file.
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.6] - 11-03-2025
+
+- Enhanced Markdownify List Rendering
+
 ## [0.0.5] - 28-02-2025
 
 - Added Hex conversion
