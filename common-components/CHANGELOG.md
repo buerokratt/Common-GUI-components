@@ -2,6 +2,10 @@
 All changes to this project will be documented in this file.
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.7] - 19-03-2025
+
+- Fixed End-user messages not visible in chat history
+
 ## [0.0.6] - 11-03-2025
 
 - Enhanced Markdownify List Rendering
