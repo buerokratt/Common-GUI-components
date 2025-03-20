@@ -164,9 +164,47 @@ const HistoricalChat: FC<ChatProps> = ({
   }, [messageGroups]);
 
   const isEvent = (group: GroupedMessage) => {
-    return (
-      group.type === "event" || group.name.trim() === "" || (!group.messages[0].content && group.messages[0].event)
-    );
+    return (group.type === "event" || group.name.trim() === "" ||  group.messages.some((message) => message.event && !message.content));
+  };
+
+  const eventGroup = (group: GroupedMessage) => {
+    return group.messages.map((message) => {
+      if (message.event && !message.content) {
+        return <ChatEvent key={message.id} message={message} />;
+      } else {
+        return (
+          <div key={message.id}>
+            <div className="historical-chat__group-event-initials">
+              {group.type === "buerokratt" || group.type === "chatbot" ? (
+                <BykLogoWhite height={24} />
+              ) : (
+                <>
+                  {group.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .toUpperCase()}
+                </>
+              )}
+            </div>
+            <div className="historical-chat__group-event-name">
+              {group.name}
+              {group.title.length > 0 && <div className="title">{group.title}</div>}
+            </div>
+            <div className="historical-chat__messages">
+              <ChatMessage
+                message={message}
+                key={`${message.id ?? ""}`}
+                toastContext={toastContext}
+                onMessageClick={(message) => {
+                  onMessageClick?.(message);
+                }}
+              />
+            </div>
+          </div>
+        );
+      }
+    });
   };
 
   return (
@@ -180,7 +218,7 @@ const HistoricalChat: FC<ChatProps> = ({
                 key={`${group.name}-${index}`}
               >
                 {isEvent(group) ? (
-                  <ChatEvent message={group.messages[0]} />
+                  eventGroup(group)
                 ) : (
                   <>
                     <div className="historical-chat__group-initials">

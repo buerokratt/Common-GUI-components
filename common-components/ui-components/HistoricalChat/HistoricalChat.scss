@@ -135,7 +135,8 @@
     }
   }
 
-  &__group-initials {
+  &__group-initials,
+  &__group-event-initials {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -149,10 +150,18 @@
     color: get-color(black-coral-6);
     position: absolute;
     right: 0;
+  }
+
+  &__group-initials {
     top: 0;
   }
 
-  &__group-name {
+  &__group-event-initials {
+    bottom: 23px;
+  }
+
+  &__group-name,
+  &__group-event-name {
     font-size: $veera-font-size-100;
     line-height: $veera-line-height-500;
     font-weight: $veera-font-weight-delta;
@@ -161,6 +170,10 @@
     margin-right: 3rem;
     text-align: right;
     padding-top: 7px;
+  }
+
+  &__group-event-name {
+    padding-bottom: 4px;
   }
 
   &__messages {
