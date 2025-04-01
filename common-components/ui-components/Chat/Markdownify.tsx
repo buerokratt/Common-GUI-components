@@ -41,10 +41,7 @@ const LinkPreview: React.FC<{
   );
 };
 
-const Markdownify: React.FC<MarkdownifyProps> = ({
-  message,
-  sanitizeLinks = false,
-}) => (
+const Markdownify: React.FC<MarkdownifyProps> = ({ message, sanitizeLinks = false }) => (
   <div className={"reset"}>
     <Markdown
       options={{

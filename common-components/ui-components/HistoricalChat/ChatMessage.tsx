@@ -14,11 +14,7 @@ type ChatMessageProps = {
   toastContext: ToastContextType | null;
 };
 
-const ChatMessage: FC<ChatMessageProps> = ({
-  message,
-  onMessageClick,
-  toastContext,
-}) => {
+const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick, toastContext }) => {
   const buttons = useMemo(() => parseButtons(message), [message.buttons]);
   const options = useMemo(() => parseOptions(message), [message.options]);
   const { t } = useTranslation();
@@ -53,15 +49,9 @@ const ChatMessage: FC<ChatMessageProps> = ({
           onClick={onMessageClick ? () => onMessageClick(message) : undefined}
           onContextMenu={handleContextMenu}
         >
-          <Markdownify
-            message={message.content ?? ""}
-            sanitizeLinks={message.authorRole === "end-user"}
-          />
+          <Markdownify message={message.content ?? ""} sanitizeLinks={message.authorRole === "end-user"} />
         </button>
-        <time
-          dateTime={message.created}
-          className="historical-chat__message-date"
-        >
+        <time dateTime={message.created} className="historical-chat__message-date">
           {format(new Date(message.created ?? ""), "HH:mm:ss")}
         </time>
       </div>
