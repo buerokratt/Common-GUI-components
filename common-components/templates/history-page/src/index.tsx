@@ -216,8 +216,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
 
             return apiDev.post('agents/chats/ended', {
                 customerSupportIds: data.customerSupportIds,
-                startDate: data.startDate,
-                endDate: data.endDate,
+                startDate: format(new Date(data.startDate), 'yyyy-MM-dd'),
+                endDate: format(new Date(data.endDate), 'yyyy-MM-dd'),
                 page: data.pagination.pageIndex + 1,
                 page_size: data.pagination.pageSize,
                 sorting: sortBy,

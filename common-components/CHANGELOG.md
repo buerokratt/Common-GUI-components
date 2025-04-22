@@ -7,7 +7,8 @@ All changes to this project will be documented in this file.
 ## [0.0.11] - 01-04-2025
 
 - Updated preference page loading
-- 
+- Updated date formating for ended chats to hold only date without time.
+
 ## [0.0.10] - 14-04-2025
 
 - Changed dialog visibility
