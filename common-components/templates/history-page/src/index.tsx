@@ -131,12 +131,17 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                     page_name: window.location.pathname,
                 },
             });
-            if (response.data.pageResults !== undefined) {
-                const newSelectedColumns = response.data?.selectedColumns.length === 1 && response.data?.selectedColumns[0] === "" ? [] : response.data?.selectedColumns;
+            if (response.data) {
+                const currentColumns = response.data.selectedColumns;
+                const newPageResults = response.data.pageResults !== undefined ? response.data.pageResults : 10;
+                const updatedPagination = updatePagePreference(newPageResults);
+
+                let newSelectedColumns = [];
+                if(currentColumns !== undefined && currentColumns.length > 0 && currentColumns[0] !== "") {
+                    newSelectedColumns = currentColumns;
+                }
                 setSelectedColumns(newSelectedColumns)
-                const updatedPagination = updatePagePreference(
-                    response.data.pageResults ?? 10
-                );
+
                 setCounterKey(counterKey + 1)
                 getAllEndedChats.mutate({
                     startDate: format(new Date(startDate), 'yyyy-MM-dd'),
@@ -148,7 +153,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                 });
             }
         } catch (err) {
-            console.error('Failed to fetch data');
+            console.error('Failed to fetch data', err);
         }
     };
 
@@ -211,8 +216,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
 
             return apiDev.post('agents/chats/ended', {
                 customerSupportIds: data.customerSupportIds,
-                startDate: data.startDate,
-                endDate: data.endDate,
+                startDate: format(new Date(data.startDate), 'yyyy-MM-dd'),
+                endDate: format(new Date(data.endDate), 'yyyy-MM-dd'),
                 page: data.pagination.pageIndex + 1,
                 page_size: data.pagination.pageSize,
                 sorting: sortBy,
