@@ -1,6 +1,6 @@
 {
   "name": "@buerokratt-ria/common-gui-components",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "Common GUI components and pre defined templates.",
   "main": "index.ts",
   "author": "ExiRai",
