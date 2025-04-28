@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.13] - 25-04-2025
+
+- Adding double scrollbar to history page when size is small.
+
 ## [0.0.12] - 22-04-2025
 
 - Modified Markdowify Logic to handle the case only the list line ends with : followed by space
