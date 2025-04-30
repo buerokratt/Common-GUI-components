@@ -744,7 +744,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                 </Track>
             </Card>
 
-            <div className="card-drawer-container">
+            <div className="card-drawer-container" style={{ height: 'auto', overflow: 'auto' }}>
                 <div className="card-wrapper">
                     <Card>
                         <DataTable
