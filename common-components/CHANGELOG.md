@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.13] - 30-04-2025
+
+- Added sorting configurable (disabled by default)
+- Added Email display configurable (disabled by default)
+
 ## [0.0.12] - 22-04-2025
 
 - Modified Markdowify Logic to handle the case only the list line ends with : followed by space
