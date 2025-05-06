@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.14] - 02-05-2025
+
+- Display feedback rating consistently in history page.
+
 ## [0.0.13] - 25-04-2025
 
 - Adding double scrollbar to history page when size is small.
