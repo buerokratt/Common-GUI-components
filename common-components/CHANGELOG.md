@@ -4,10 +4,19 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
-## [0.0.13] - 30-04-2025
+
+## [0.0.15] - 05-05-2025
+
+- Updated popup duration to be 5 seconds.
+
+## [0.0.14] - 30-04-2025
 
 - Added sorting configurable (disabled by default)
 - Added Email display configurable (disabled by default)
+
+## [0.0.13] - 25-04-2025
+
+- Adding double scrollbar to history page when size is small.
 
 ## [0.0.12] - 22-04-2025
 
