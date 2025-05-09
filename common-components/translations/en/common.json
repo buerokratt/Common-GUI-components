@@ -1,5 +1,6 @@
 {
   "global": {
+    "email": "Email",
     "save": "Save",
     "add": "Add",
     "edit": "Edit",
@@ -45,6 +46,11 @@
     "forward": "Forward",
     "chosen": "Chosen",
     "read": "Read"
+  },
+  "sorting": {
+    "des": "descending",
+    "asc": "ascending",
+    "sorting": "Sorting"
   },
   "mainMenu": {
     "menuLabel": "Main navigation",
