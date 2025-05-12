@@ -4,6 +4,9 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.16] - 09-05-2025
+
+- Display feedback rating consistently in history page.
 
 ## [0.0.15] - 05-05-2025
 
