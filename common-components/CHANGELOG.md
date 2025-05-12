@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.15] - 09-05-2025
+
+- Display feedback rating consistently in history page.
+
 ## [0.0.14] - 05-05-2025
 
 - Updated popup duration to be 5 seconds.
