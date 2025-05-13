@@ -37,10 +37,12 @@ type HistoryProps = {
     toastContext: ToastContextType | null;
     onMessageClick?: (message: any) => void;
     showComment?: boolean;
+    showEmail?: boolean;
+    showSortingLabel?: boolean;
     showStatus?: boolean;
 }
 
-const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, onMessageClick, showComment = true, showStatus = true}) => {
+const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, onMessageClick, showComment = true, showEmail = false, showSortingLabel = false,showStatus = true}) => {
     const {t, i18n} = useTranslation();
     const toast = toastContext;
     const userInfo = user;
@@ -269,8 +271,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
         },
     });
 
-    const visibleColumnOptions = useMemo(
-        () => [
+    const visibleColumnOptions = useMemo(() => {
+        const columns = [
             {label: t('chat.history.startTime'), value: 'created'},
             {label: t('chat.history.endTime'), value: 'ended'},
             {label: t('chat.history.csaName'), value: 'customerSupportFullName'},
@@ -283,9 +285,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
             {label: t('global.status'), value: 'status'},
             {label: 'ID', value: 'id'},
             {label: 'www', value: 'www'},
-        ],
-        [t]
-    );
+        ];
+
+        if (showEmail) {
+            columns.splice(4, 0, {label: t('global.email'), value: 'endUserEmail'}); // insert after name
+        }
+
+        return columns;
+    }, [t, showEmail])
 
     const chatStatusChangeMutation = useMutation({
         mutationFn: async (data: { chatId: string | number; event: string }) => {
@@ -458,8 +465,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
         </Button>
     );
 
-    const endedChatsColumns = useMemo(
-        () => [
+    const endedChatsColumns = useMemo(() => {
+        const columns = [
             columnHelper.accessor('created', {
                 id: 'created',
                 header: t('chat.history.startTime') ?? '',
@@ -576,9 +583,62 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                     sticky: 'right',
                 },
             }),
-        ],
-        []
-    );
+        ];
+
+        if (showEmail) {
+            columns.splice(4, 0, columnHelper.accessor('endUserEmail', {
+                id: 'endUserEmail',
+                header: t('global.email') ?? '',
+            }));
+        }
+
+        return columns;
+    }, [t, showEmail])
+
+    const getSortingString = () => {
+        if(sorting && sorting.length > 0) {
+            const sortingObject = sorting[0];
+            const sortingString = t('sorting.sorting');
+            const orderingString = t(`sorting.${sortingObject.desc ? 'desc' : 'asc'}`);
+            const column = getColumnTranslation(sortingObject.id);
+            return sortingString + ' ' + column + ' ' + orderingString;
+        } else {
+            return '';
+        }
+    }
+
+    const getColumnTranslation = (column: string) : string => {
+        switch (column) {
+            case 'endUserId':
+                return t('global.idCode') ?? ''
+            case 'created':
+                return t('chat.history.startTime') ?? ''
+            case 'ended':
+                return t('chat.history.endTime') ?? ''
+            case 'customerSupportFullName':
+                return t('chat.history.csaName') ?? ''
+            case 'endUserName':
+                return t('global.name') ?? ''
+            case 'endUserEmail':
+                return t('global.email') ?? ''
+            case 'contactsMessage':
+                return t('chat.history.contact') ?? ''
+            case 'comment':
+                return t('chat.history.comment') ?? ''
+            case 'feedbackRating':
+                return t('chat.history.rating') ?? ''
+            case 'feedbackText':
+                return t('chat.history.feedback') ?? ''
+            case 'status':
+                return t('global.status') ?? ''
+            case 'endUserUrl':
+                return 'www'
+            case 'id':
+                return 'id';
+            default:
+                return '';
+        }
+    }
 
     const handleChatStatusChange = (event: string) => {
         if (!selectedChat) return;
@@ -759,6 +819,13 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                 </Track>
             </Card>
 
+            {sorting && sorting.length > 0 && showSortingLabel && (
+                <div>
+                    <Button disabled={true} appearance="secondary">
+                        {getSortingString()}
+                    </Button>
+                </div>)
+            }
             <div className="card-drawer-container" style={{ height: 'auto', overflow: 'auto' }}>
                 <div className="card-wrapper">
                     <Card>
