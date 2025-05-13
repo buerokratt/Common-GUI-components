@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.17] - 13-05-2025
+
+- Updated csa display and filtering.
+
+
 ## [0.0.16] - 09-05-2025
 
 - Display feedback rating consistently in history page.
