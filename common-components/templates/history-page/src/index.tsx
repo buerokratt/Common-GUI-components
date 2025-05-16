@@ -261,7 +261,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
             }),
         onSuccess: (res: any) => {
             setCustomerSupportAgents([
-                {label: '-', value: ','},
+                {label: '-', value: '-'},
                 {label: 'Bürokratt', value: 'chatbot'},
                 ...res.data.response.map((item) => ({
                     label: [item.firstName, item.lastName].join(' ').trim(),
@@ -488,9 +488,22 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                     ),
             }),
             columnHelper.accessor(
-               (row) => {
-                const customerSupportIdCheck = row.customerSupportId ? `${row.customerSupportFirstName ?? ""} ${row.customerSupportLastName ?? ""}`: "-";
-                return `${ row.customerSupportId === "chatbot" ? row.customerSupportDisplayName : customerSupportIdCheck }`;
+                (row) => {
+                    if (Array.isArray(row.allCsa) && !(row.allCsa.length === 1 && (row.allCsa[0] == null || row.allCsa[0].toString().trim() === ''))) {
+                        const cleanedNames = row.allCsa
+                            .filter(name => !!name && typeof name === 'string')
+                            .map(name => name.trim())
+                            .filter(name => name !== "")
+                            .filter((name, index, self) => self.indexOf(name) === index);
+
+                        const filteredNames = cleanedNames.length > 1
+                            ? cleanedNames.filter(name => name !== "Bürokratt")
+                            : cleanedNames;
+
+                        return filteredNames.join(", ");
+                    } else {
+                        return '-';
+                    }
                 },
                 {
                   id: `customerSupportFullName`,
