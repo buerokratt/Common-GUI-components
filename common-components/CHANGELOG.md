@@ -4,6 +4,13 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.18] - 16-05-2025
+
+- Made title configurable.
+- Made passed dates configurable dynamically.
+- Made searchbar configrable
+- Updated default column data to handle both null and undefined.
+
 ## [0.0.17] - 13-05-2025
 
 - Updated csa display and filtering.
