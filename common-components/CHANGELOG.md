@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.19] - 19-05-2025
+
+- Reduced extra calling of mutation on init.
+
 ## [0.0.18] - 16-05-2025
 
 - Made title configurable.

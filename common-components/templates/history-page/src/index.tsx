@@ -1,4 +1,4 @@
-import React, {FC, PropsWithChildren, useEffect, useMemo, useState} from 'react';
+import React, {FC, PropsWithChildren, useEffect, useRef, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useMutation} from '@tanstack/react-query';
 import {ColumnPinningState, createColumnHelper, PaginationState, SortingState,} from '@tanstack/react-table';
@@ -68,7 +68,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const params = new URLSearchParams(routerLocation.search);
     let passedChatId = new URLSearchParams(routerLocation.search).get('chat');
     const passedStartDate = delegatedStartDate ?? params.get('start');
-    const passedEndDate = delegatedEndDate ?? params.get('end');
+    const passedEndDate = delegatedStartDate ?? params.get('end');
+    const skipNextSelectedColumnsEffect = useRef(false);
     const passedCustomerSupportIds = params.getAll('customerSupportIds');
     const [search, setSearch] = useState('');
     const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
@@ -143,18 +144,31 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     }, [passedChatId]);
 
     useEffect(() => {
-        if (delegatedStartDate) {
-            setValue('startDate', unifyDateFromat(delegatedStartDate));
-            fetchData()
-        }
-    }, [delegatedStartDate]);
+        const hasStart = delegatedStartDate !== null && delegatedStartDate !== undefined;
+        const hasEnd = delegatedEndDate !== null && delegatedEndDate !== undefined;
 
-    useEffect(() => {
-        if (delegatedEndDate) {
-            setValue('endDate', unifyDateFromat(delegatedEndDate));
-            fetchData()
+        if (hasStart || hasEnd) {
+            if (hasStart) {
+                setValue('startDate', unifyDateFromat(delegatedStartDate));
+            }
+            if (hasEnd) {
+                setValue('endDate', unifyDateFromat(delegatedEndDate));
+            }
+
+            if(initialLoad) {
+                fetchData()
+            } else {
+                getAllEndedChats.mutate({
+                    startDate: hasStart ? unifyDateFromat(delegatedStartDate) : format(new Date(startDate), 'yyyy-MM-dd'),
+                    endDate: hasEnd ? unifyDateFromat(delegatedEndDate) : format(new Date(endDate), 'yyyy-MM-dd'),
+                    customerSupportIds: passedCustomerSupportIds,
+                    pagination,
+                    sorting,
+                    search,
+                });
+            }
         }
-    }, [delegatedEndDate]);
+    }, [delegatedStartDate, delegatedEndDate]);
 
 
     const fetchData = async () => {
@@ -166,18 +180,21 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     page_name: window.location.pathname,
                 },
             });
+
             if (response.data) {
                 const currentColumns = response.data.selectedColumns;
                 const newPageResults = response.data.pageResults !== undefined ? response.data.pageResults : 10;
                 const updatedPagination = updatePagePreference(newPageResults);
 
                 let newSelectedColumns = [];
-                if (currentColumns != null && currentColumns.length > 0 && currentColumns[0] !== "") {
+                if (currentColumns?.length > 0 && currentColumns[0] !== "") {
                     newSelectedColumns = currentColumns;
                 }
-                setSelectedColumns(newSelectedColumns)
 
-                setCounterKey(counterKey + 1)
+                skipNextSelectedColumnsEffect.current = true;
+                setSelectedColumns(newSelectedColumns);
+                setCounterKey(prev => prev + 1);
+
                 getAllEndedChats.mutate({
                     startDate: format(new Date(startDate), 'yyyy-MM-dd'),
                     endDate: format(new Date(endDate), 'yyyy-MM-dd'),
@@ -204,6 +221,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     useEffect(() => {
         if (initialLoad) {
             fetchData();
+        } else if (skipNextSelectedColumnsEffect.current) {
+            skipNextSelectedColumnsEffect.current = false;
         } else {
             getAllEndedChats.mutate({
                 startDate: format(new Date(startDate), 'yyyy-MM-dd'),
