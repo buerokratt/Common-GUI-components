@@ -1,4 +1,4 @@
-import React, {FC, PropsWithChildren, useEffect, useMemo, useState} from 'react';
+import React, {FC, PropsWithChildren, useEffect, useRef, useMemo, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useMutation} from '@tanstack/react-query';
 import {ColumnPinningState, createColumnHelper, PaginationState, SortingState,} from '@tanstack/react-table';
@@ -40,17 +40,36 @@ type HistoryProps = {
     showEmail?: boolean;
     showSortingLabel?: boolean;
     showStatus?: boolean;
+    displayTitle?: boolean;
+    displaySearchBar?: boolean;
+    displayDateFilter?: boolean;
+    delegatedStartDate?: string;
+    delegatedEndDate?: string;
 }
 
-const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, onMessageClick, showComment = true, showEmail = false, showSortingLabel = false,showStatus = true}) => {
+const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
+                                                              user,
+                                                              toastContext,
+                                                              onMessageClick,
+                                                              showComment = true,
+                                                              showEmail = false,
+                                                              showSortingLabel = false,
+                                                              showStatus = true,
+                                                              displayTitle = true,
+                                                              displayDateFilter = true,
+                                                              displaySearchBar = true,
+                                                              delegatedEndDate = null,
+                                                              delegatedStartDate = null
+                                                          }) => {
     const {t, i18n} = useTranslation();
     const toast = toastContext;
     const userInfo = user;
     const routerLocation = useLocation();
     const params = new URLSearchParams(routerLocation.search);
     let passedChatId = new URLSearchParams(routerLocation.search).get('chat');
-    const passedStartDate = params.get('start');
-    const passedEndDate = params.get('end');
+    const passedStartDate = delegatedStartDate ?? params.get('start');
+    const passedEndDate = delegatedStartDate ?? params.get('end');
+    const skipNextSelectedColumnsEffect = useRef(false);
     const passedCustomerSupportIds = params.getAll('customerSupportIds');
     const [search, setSearch] = useState('');
     const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
@@ -81,7 +100,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
     const [customerSupportAgents, setCustomerSupportAgents] = useState<any[]>([]);
     const [counterKey, setCounterKey] = useState<number>(0)
 
-    const {control, watch} = useForm<{
+    const {control, setValue, watch} = useForm<{
         startDate: Date | string;
         endDate: Date | string;
     }>({
@@ -124,6 +143,34 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
         }
     }, [passedChatId]);
 
+    useEffect(() => {
+        const hasStart = delegatedStartDate !== null && delegatedStartDate !== undefined;
+        const hasEnd = delegatedEndDate !== null && delegatedEndDate !== undefined;
+
+        if (hasStart || hasEnd) {
+            if (hasStart) {
+                setValue('startDate', unifyDateFromat(delegatedStartDate));
+            }
+            if (hasEnd) {
+                setValue('endDate', unifyDateFromat(delegatedEndDate));
+            }
+
+            if(initialLoad) {
+                fetchData()
+            } else {
+                getAllEndedChats.mutate({
+                    startDate: hasStart ? unifyDateFromat(delegatedStartDate) : format(new Date(startDate), 'yyyy-MM-dd'),
+                    endDate: hasEnd ? unifyDateFromat(delegatedEndDate) : format(new Date(endDate), 'yyyy-MM-dd'),
+                    customerSupportIds: passedCustomerSupportIds,
+                    pagination,
+                    sorting,
+                    search,
+                });
+            }
+        }
+    }, [delegatedStartDate, delegatedEndDate]);
+
+
     const fetchData = async () => {
         setInitialLoad(false);
         try {
@@ -133,18 +180,21 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
                     page_name: window.location.pathname,
                 },
             });
+
             if (response.data) {
                 const currentColumns = response.data.selectedColumns;
                 const newPageResults = response.data.pageResults !== undefined ? response.data.pageResults : 10;
                 const updatedPagination = updatePagePreference(newPageResults);
 
                 let newSelectedColumns = [];
-                if(currentColumns !== undefined && currentColumns.length > 0 && currentColumns[0] !== "") {
+                if (currentColumns?.length > 0 && currentColumns[0] !== "") {
                     newSelectedColumns = currentColumns;
                 }
-                setSelectedColumns(newSelectedColumns)
 
-                setCounterKey(counterKey + 1)
+                skipNextSelectedColumnsEffect.current = true;
+                setSelectedColumns(newSelectedColumns);
+                setCounterKey(prev => prev + 1);
+
                 getAllEndedChats.mutate({
                     startDate: format(new Date(startDate), 'yyyy-MM-dd'),
                     endDate: format(new Date(endDate), 'yyyy-MM-dd'),
@@ -171,6 +221,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
     useEffect(() => {
         if (initialLoad) {
             fetchData();
+        } else if (skipNextSelectedColumnsEffect.current) {
+            skipNextSelectedColumnsEffect.current = false;
         } else {
             getAllEndedChats.mutate({
                 startDate: format(new Date(startDate), 'yyyy-MM-dd'),
@@ -687,86 +739,94 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({user, toastContext, o
 
     return (
         <>
-            <h1>{t('chat.history.title')}</h1>
+            {displayTitle && (
+                <h1>{t('chat.history.title')}</h1>
+            )}
 
             <Card>
                 <Track gap={16}>
-                    <FormInput
-                        className="input-wrapper"
-                        label={t('chat.history.searchChats')}
-                        hideLabel
-                        name="searchChats"
-                        placeholder={t('chat.history.searchChats') + '...'}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            debouncedGetAllEnded(e.target.value);
-                        }}
-                    />
+                    {displaySearchBar && (
+                        <FormInput
+                            className="input-wrapper"
+                            label={t('chat.history.searchChats')}
+                            hideLabel
+                            name="searchChats"
+                            placeholder={t('chat.history.searchChats') + '...'}
+                            onChange={(e) => {
+                                setSearch(e.target.value);
+                                debouncedGetAllEnded(e.target.value);
+                            }}
+                        />)}
+
                     <Track style={{width: '100%'}} gap={16}>
-                        <Track gap={10}>
-                            <p>{t('global.from')}</p>
-                            <Controller
-                                name="startDate"
-                                control={control}
-                                render={({field}) => {
-                                    return (
-                                        <FormDatepicker
-                                            {...field}
-                                            label={''}
-                                            value={field.value ?? new Date()}
-                                            onChange={(v) => {
-                                                field.onChange(v);
-                                                const start = format(new Date(v), 'yyyy-MM-dd');
-                                                setSearchParams((params) => {
-                                                    params.set('start', start);
-                                                    return params;
-                                                });
-                                                getAllEndedChats.mutate({
-                                                    startDate: start,
-                                                    endDate: format(new Date(endDate), 'yyyy-MM-dd'),
-                                                    customerSupportIds: passedCustomerSupportIds,
-                                                    pagination,
-                                                    sorting,
-                                                    search,
-                                                });
-                                            }}
-                                        />
-                                    );
-                                }}
-                            />
-                        </Track>
-                        <Track gap={10}>
-                            <p>{t('global.to')}</p>
-                            <Controller
-                                name="endDate"
-                                control={control}
-                                render={({field}) => {
-                                    return (
-                                        <FormDatepicker
-                                            {...field}
-                                            label={''}
-                                            value={field.value ?? new Date()}
-                                            onChange={(v) => {
-                                                field.onChange(v);
-                                                const end = format(new Date(v), 'yyyy-MM-dd');
-                                                setSearchParams((params) => {
-                                                    params.set('end', end);
-                                                    return params;
-                                                });
-                                                getAllEndedChats.mutate({
-                                                    startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-                                                    endDate: end,
-                                                    customerSupportIds: passedCustomerSupportIds,
-                                                    pagination,
-                                                    sorting,
-                                                    search,
-                                                });
-                                            }}
-                                        />
-                                    );
-                                }}
-                            />
-                        </Track>
+                        {displayDateFilter && (
+                            <>
+                                <Track gap={10}>
+                                    <p>{t('global.from')}</p>
+                                    <Controller
+                                        name="startDate"
+                                        control={control}
+                                        render={({field}) => {
+                                            return (
+                                                <FormDatepicker
+                                                    {...field}
+                                                    label={''}
+                                                    value={field.value ?? new Date()}
+                                                    onChange={(v) => {
+                                                        field.onChange(v);
+                                                        const start = format(new Date(v), 'yyyy-MM-dd');
+                                                        setSearchParams((params) => {
+                                                            params.set('start', start);
+                                                            return params;
+                                                        });
+                                                        getAllEndedChats.mutate({
+                                                            startDate: start,
+                                                            endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                                                            customerSupportIds: passedCustomerSupportIds,
+                                                            pagination,
+                                                            sorting,
+                                                            search,
+                                                        });
+                                                    }}
+                                                />
+                                            );
+                                        }}
+                                    />
+                                </Track>
+                                <Track gap={10}>
+                                    <p>{t('global.to')}</p>
+                                    <Controller
+                                        name="endDate"
+                                        control={control}
+                                        render={({field}) => {
+                                            return (
+                                                <FormDatepicker
+                                                    {...field}
+                                                    label={''}
+                                                    value={field.value ?? new Date()}
+                                                    onChange={(v) => {
+                                                        field.onChange(v);
+                                                        const end = format(new Date(v), 'yyyy-MM-dd');
+                                                        setSearchParams((params) => {
+                                                            params.set('end', end);
+                                                            return params;
+                                                        });
+                                                        getAllEndedChats.mutate({
+                                                            startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+                                                            endDate: end,
+                                                            customerSupportIds: passedCustomerSupportIds,
+                                                            pagination,
+                                                            sorting,
+                                                            search,
+                                                        });
+                                                    }}
+                                                />
+                                            );
+                                        }}
+                                    />
+                                </Track>
+                            </>
+                        )}
                         <FormMultiselect
                             key={counterKey}
                             name="visibleColumns"
