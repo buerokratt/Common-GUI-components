@@ -886,7 +886,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     </Button>
                 </div>)
             }
-            <div className="card-drawer-container" style={{ height: 'auto', overflow: 'auto' }}>
+            <div className="card-drawer-container" style={{ height: '100%', overflow: 'auto' }}>
                 <div className="card-wrapper">
                     <Card>
                         <DataTable
