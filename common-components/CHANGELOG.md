@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.21] - 30-06-2025
+
+- Fix Message With Buttons View.
+
 ## [0.0.20] - 21-05-2025
 
 - Making chat view go take all vertical space.
