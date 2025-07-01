@@ -105,8 +105,10 @@ const HistoricalChat: FC<ChatProps> = ({
       const content = currentMessage.content?.trim() ?? "";
 
       if (content.startsWith("#service,") || content.startsWith("#common_service,")) {
-        let buttons = messagesList[i - 1]?.buttons ? JSON.parse(messagesList[i - 1].buttons!) : [];
-        currentMessage.content = buttons.find((b: any) => b.payload.includes(content))?.title ?? content;
+        const allPreviousButtons = messagesList
+          .slice(0, i)
+          .flatMap((msg) => (msg.buttons ? JSON.parse(msg.buttons) : []));
+        currentMessage.content = allPreviousButtons.find((b: any) => b.payload.includes(content))?.title ?? content;
       }
 
       const lastGroup = groupedMessages[groupedMessages.length - 1];
@@ -122,7 +124,7 @@ const HistoricalChat: FC<ChatProps> = ({
             content:
               currentMessage.event === CHAT_EVENTS.WAITING_VALIDATION
                 ? t("chat.waiting_validation").toString()
-                : content,
+                : currentMessage.content,
           });
         } else {
           groupedMessages.push({
