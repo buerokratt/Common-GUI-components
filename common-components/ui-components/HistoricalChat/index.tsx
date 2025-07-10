@@ -100,40 +100,50 @@ const HistoricalChat: FC<ChatProps> = ({
   useEffect(() => {
     if (!messagesList) return;
     let groupedMessages: GroupedMessage[] = [];
-    messagesList.forEach((message) => {
+    messagesList.forEach((message, i) => {
+      const currentMessage = message;
+      const content = currentMessage.content?.trim() ?? "";
+
+      if (content.startsWith("#service,") || content.startsWith("#common_service,")) {
+        const allPreviousButtons = messagesList
+          .slice(0, i)
+          .flatMap((msg) => (msg.buttons ? JSON.parse(msg.buttons) : []));
+        currentMessage.content = allPreviousButtons.find((b: any) => b.payload.includes(content))?.title ?? content;
+      }
+
       const lastGroup = groupedMessages[groupedMessages.length - 1];
-      if (lastGroup?.type === message.authorRole) {
+      if (lastGroup?.type === currentMessage.authorRole) {
         if (
-          !message.event ||
-          message.event.toLowerCase() === CHAT_EVENTS.GREETING ||
-          message.event.toLowerCase() === CHAT_EVENTS.WAITING_VALIDATION ||
-          message.event.toLowerCase() === CHAT_EVENTS.APPROVED_VALIDATION
+          !currentMessage.event ||
+          currentMessage.event.toLowerCase() === CHAT_EVENTS.GREETING ||
+          currentMessage.event.toLowerCase() === CHAT_EVENTS.WAITING_VALIDATION ||
+          currentMessage.event.toLowerCase() === CHAT_EVENTS.APPROVED_VALIDATION
         ) {
           lastGroup.messages.push({
-            ...message,
+            ...currentMessage,
             content:
-              message.event === CHAT_EVENTS.WAITING_VALIDATION
+              currentMessage.event === CHAT_EVENTS.WAITING_VALIDATION
                 ? t("chat.waiting_validation").toString()
-                : message.content,
+                : currentMessage.content,
           });
         } else {
           groupedMessages.push({
             name: "",
             type: "event",
             title: "",
-            messages: [{ ...message }],
+            messages: [{ ...currentMessage }],
           });
         }
       } else {
         const isBackOfficeUser =
-          message.authorRole === "backoffice-user"
-            ? `${message.authorFirstName} ${message.authorLastName}`
+          currentMessage.authorRole === "backoffice-user"
+            ? `${currentMessage.authorFirstName} ${currentMessage.authorLastName}`
             : BACKOFFICE_NAME.DEFAULT;
         groupedMessages.push({
-          name: message.authorRole === "end-user" ? endUserFullName : isBackOfficeUser,
-          type: message.authorRole,
-          title: message.csaTitle ?? "",
-          messages: [{ ...message }],
+          name: currentMessage.authorRole === "end-user" ? endUserFullName : isBackOfficeUser,
+          type: currentMessage.authorRole,
+          title: currentMessage.csaTitle ?? "",
+          messages: [{ ...currentMessage }],
         });
       }
     });
