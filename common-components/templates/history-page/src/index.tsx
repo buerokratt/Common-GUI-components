@@ -32,8 +32,12 @@ import {useDebouncedCallback} from 'use-debounce';
 import {UserInfo} from "../../../types/userInfo";
 import {ToastContextType} from "../../../context";
 
+import {getDomainsArray} from "../../../utils/multiDomain-utils";
+import {StoreState} from "../../../store";
+
 type HistoryProps = {
     user: UserInfo | null;
+    userDomains: StoreState;
     toastContext: ToastContextType | null;
     onMessageClick?: (message: any) => void;
     showComment?: boolean;
@@ -49,6 +53,7 @@ type HistoryProps = {
 
 const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                               user,
+                                                              userDomains,
                                                               toastContext,
                                                               onMessageClick,
                                                               showComment = true,
@@ -100,6 +105,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const [customerSupportAgents, setCustomerSupportAgents] = useState<any[]>([]);
     const [counterKey, setCounterKey] = useState<number>(0)
 
+    const useStore = userDomains;
+    const [updateKey, setUpdateKey] = useState<number>(0)
+    const currentDomains = useStore.getState().userDomains;
+    const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN.toLowerCase() === 'true';
+
     const {control, setValue, watch} = useForm<{
         startDate: Date | string;
         endDate: Date | string;
@@ -136,6 +146,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         });
     }, 500);
 
+    if(multiDomainEnabled) {
+        useStore.subscribe((state, prevState) => {
+            if(JSON.stringify(state.userDomains) !== JSON.stringify(prevState.userDomains)) {
+                setUpdateKey(prevState => prevState + 1);
+            }
+        });
+    }
+
     useEffect(() => {
         if (passedChatId != null) {
             getChatById.mutate();
@@ -168,7 +186,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 });
             }
         }
-    }, [delegatedStartDate, delegatedEndDate]);
+    }, [delegatedStartDate, delegatedEndDate, updateKey]);
 
 
     const fetchData = async () => {
@@ -272,6 +290,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 customerSupportIds: data.customerSupportIds,
                 startDate: format(new Date(data.startDate), 'yyyy-MM-dd'),
                 endDate: format(new Date(data.endDate), 'yyyy-MM-dd'),
+                urls: getDomainsArray(currentDomains),
                 page: data.pagination.pageIndex + 1,
                 page_size: data.pagination.pageSize,
                 sorting: sortBy,

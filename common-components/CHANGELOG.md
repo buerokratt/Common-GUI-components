@@ -4,6 +4,13 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.23] - 21-07-2025
+
+- Initial support of multidomains
+- Added updated key to force fetching on domain change
+- Updated store params
+- Made store export state for reusability
+
 ## [0.0.22] - 01-07-2025
 
 - Handled Previous Messages Edge Case in Buttons
