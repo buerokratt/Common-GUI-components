@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.24] - 14-08-2025
+
+- Modified Start and End dates to send them in payload in iso format
+
 ## [0.0.23] - 21-07-2025
 
 - Initial support of multidomains
