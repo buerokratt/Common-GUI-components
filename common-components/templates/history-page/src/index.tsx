@@ -108,7 +108,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const useStore = userDomains;
     const [updateKey, setUpdateKey] = useState<number>(0)
     const currentDomains = useStore.getState().userDomains;
-    const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN.toLowerCase() === 'true';
+    const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN?.toLowerCase() === 'true';
 
     const parseDateParam = (dateString: string | null) => {
       if (!dateString) return new Date();
