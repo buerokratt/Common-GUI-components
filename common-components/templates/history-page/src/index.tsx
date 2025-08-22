@@ -108,7 +108,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const useStore = userDomains;
     const [updateKey, setUpdateKey] = useState<number>(0)
     const currentDomains = useStore.getState().userDomains;
-    const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN.toLowerCase() === 'true';
+    const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN?.toLowerCase() === 'true';
+    const testMessageEnabled = import.meta.env.REACT_APP_SHOW_TEST_MESSAGE?.toLowerCase() === 'true';
 
     const {control, setValue, watch} = useForm<{
         startDate: Date | string;
@@ -359,11 +360,15 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         ];
 
         if (showEmail) {
-            columns.splice(4, 0, {label: t('global.email'), value: 'endUserEmail'}); // insert after name
+            columns.splice(4, 0, {label: t('global.email'), value: 'endUserEmail'});
+        }
+
+        if (testMessageEnabled) {
+            columns.splice(5, 0, {label: t('global.test'), value: 'isTest'});
         }
 
         return columns;
-    }, [t, showEmail])
+    }, [t, showEmail,testMessageEnabled])
 
     const chatStatusChangeMutation = useMutation({
         mutationFn: async (data: { chatId: string | number; event: string }) => {
