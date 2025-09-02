@@ -2,7 +2,7 @@ import React, {FC, PropsWithChildren, useEffect, useRef, useMemo, useState} from
 import {useTranslation} from 'react-i18next';
 import {useMutation} from '@tanstack/react-query';
 import {ColumnPinningState, createColumnHelper, PaginationState, SortingState,} from '@tanstack/react-table';
-import {format} from 'date-fns';
+import { format, startOfDay, endOfDay, formatISO } from "date-fns";
 import {AxiosError} from 'axios';
 import './History.scss';
 import {MdOutlineRemoveRedEye} from 'react-icons/md';
@@ -72,8 +72,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const routerLocation = useLocation();
     const params = new URLSearchParams(routerLocation.search);
     let passedChatId = new URLSearchParams(routerLocation.search).get('chat');
-    const passedStartDate = delegatedStartDate ?? params.get('start');
-    const passedEndDate = delegatedStartDate ?? params.get('end');
+    const passedStartDate = delegatedStartDate ?? params.get("start");
+    const passedEndDate = delegatedEndDate ?? params.get("end");
     const skipNextSelectedColumnsEffect = useRef(false);
     const passedCustomerSupportIds = params.getAll('customerSupportIds');
     const [search, setSearch] = useState('');
@@ -111,25 +111,22 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN?.toLowerCase() === 'true';
     const testMessageEnabled = import.meta.env.REACT_APP_SHOW_TEST_MESSAGE?.toLowerCase() === 'true';
 
+    const parseDateParam = (dateString: string | null) => {
+      if (!dateString) return new Date();
+      return new Date(dateString.split("+")[0]);
+    };
+
     const {control, setValue, watch} = useForm<{
         startDate: Date | string;
         endDate: Date | string;
     }>({
         defaultValues: {
             startDate: passedStartDate
-                ? unifyDateFromat(passedStartDate)
-                : new Date(
-                    new Date().getUTCFullYear(),
-                    new Date().getUTCMonth(),
-                    new Date().getUTCDate()
-                ),
-            endDate: passedEndDate
-                ? unifyDateFromat(passedEndDate)
-                : new Date(
-                    new Date().getUTCFullYear(),
-                    new Date().getUTCMonth(),
-                    new Date().getUTCDate()
-                ),
+            ? parseDateParam(passedStartDate)
+            : new Date(new Date().setUTCHours(0, 0, 0, 0)),
+             endDate: passedEndDate
+            ? parseDateParam(passedEndDate)
+            : new Date(new Date().setUTCHours(23, 59, 59, 999)),
         },
     });
 
@@ -138,8 +135,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
     const debouncedGetAllEnded = useDebouncedCallback((search) => {
         getAllEndedChats.mutate({
-            startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-            endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+            startDate: formatISO(startOfDay(new Date(startDate))),
+            endDate: formatISO(endOfDay(new Date(endDate))),
             customerSupportIds: passedCustomerSupportIds,
             pagination,
             sorting,
@@ -178,8 +175,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 fetchData()
             } else {
                 getAllEndedChats.mutate({
-                    startDate: hasStart ? unifyDateFromat(delegatedStartDate) : format(new Date(startDate), 'yyyy-MM-dd'),
-                    endDate: hasEnd ? unifyDateFromat(delegatedEndDate) : format(new Date(endDate), 'yyyy-MM-dd'),
+                    startDate: hasStart ? unifyDateFromat(delegatedStartDate) : formatISO(startOfDay(new Date(startDate))),
+                    endDate: hasEnd ? unifyDateFromat(delegatedEndDate) : formatISO(endOfDay(new Date(endDate))),
                     customerSupportIds: passedCustomerSupportIds,
                     pagination,
                     sorting,
@@ -215,8 +212,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 setCounterKey(prev => prev + 1);
 
                 getAllEndedChats.mutate({
-                    startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-                    endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                    startDate: formatISO(startOfDay(new Date(startDate))),
+                    endDate: formatISO(endOfDay(new Date(endDate))),
                     customerSupportIds: passedCustomerSupportIds,
                     pagination: updatedPagination,
                     sorting,
@@ -244,8 +241,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             skipNextSelectedColumnsEffect.current = false;
         } else {
             getAllEndedChats.mutate({
-                startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-                endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                startDate: formatISO(startOfDay(new Date(startDate))),
+                endDate: formatISO(endOfDay(new Date(endDate))),
                 customerSupportIds: passedCustomerSupportIds,
                 pagination,
                 sorting,
@@ -289,8 +286,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
             return apiDev.post('agents/chats/ended', {
                 customerSupportIds: data.customerSupportIds,
-                startDate: format(new Date(data.startDate), 'yyyy-MM-dd'),
-                endDate: format(new Date(data.endDate), 'yyyy-MM-dd'),
+                startDate: formatISO(startOfDay(new Date(data.startDate))),
+                endDate: formatISO(endOfDay(new Date(data.endDate))),
                 urls: getDomainsArray(currentDomains),
                 page: data.pagination.pageIndex + 1,
                 page_size: data.pagination.pageSize,
@@ -402,8 +399,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         onSuccess: () => {
             setMessagesTrigger(!messagesTrigger);
             getAllEndedChats.mutate({
-                startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-                endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                startDate: formatISO(startOfDay(new Date(startDate))),
+                endDate: formatISO(endOfDay(new Date(endDate))),
                 customerSupportIds: passedCustomerSupportIds,
                 pagination,
                 sorting,
@@ -798,14 +795,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                     value={field.value ?? new Date()}
                                                     onChange={(v) => {
                                                         field.onChange(v);
-                                                        const start = format(new Date(v), 'yyyy-MM-dd');
+                                                        const start = formatISO(startOfDay(new Date(v)));
                                                         setSearchParams((params) => {
                                                             params.set('start', start);
                                                             return params;
                                                         });
                                                         getAllEndedChats.mutate({
                                                             startDate: start,
-                                                            endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                                                            endDate: formatISO(endOfDay(new Date(endDate))),
                                                             customerSupportIds: passedCustomerSupportIds,
                                                             pagination,
                                                             sorting,
@@ -830,13 +827,13 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                     value={field.value ?? new Date()}
                                                     onChange={(v) => {
                                                         field.onChange(v);
-                                                        const end = format(new Date(v), 'yyyy-MM-dd');
+                                                        const end = formatISO(endOfDay(new Date(v)));
                                                         setSearchParams((params) => {
                                                             params.set('end', end);
                                                             return params;
                                                         });
                                                         getAllEndedChats.mutate({
-                                                            startDate: format(new Date(startDate), 'yyyy-MM-dd'),
+                                                            startDate: formatISO(startOfDay(new Date(startDate))),
                                                             endDate: end,
                                                             customerSupportIds: passedCustomerSupportIds,
                                                             pagination,
@@ -933,8 +930,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                     selected_columns: selectedColumns
                                 });
                                 getAllEndedChats.mutate({
-                                    startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-                                    endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                                    startDate: formatISO(startOfDay(new Date(startDate))),
+                                    endDate: formatISO(endOfDay(new Date(endDate))),
                                     customerSupportIds: passedCustomerSupportIds,
                                     pagination: state,
                                     sorting,
@@ -944,8 +941,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                             setSorting={(state: SortingState) => {
                                 setSorting(state);
                                 getAllEndedChats.mutate({
-                                    startDate: format(new Date(startDate), 'yyyy-MM-dd'),
-                                    endDate: format(new Date(endDate), 'yyyy-MM-dd'),
+                                    startDate: formatISO(startOfDay(new Date(startDate))),
+                                    endDate: formatISO(endOfDay(new Date(endDate))),
                                     customerSupportIds: passedCustomerSupportIds,
                                     pagination,
                                     sorting: state,
