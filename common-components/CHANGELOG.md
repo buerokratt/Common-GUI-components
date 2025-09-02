@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.25] - 01-09-2025
+
+- Added test column to display chats mark for test
+- FIX: refetch based on updated domains
+
 ## [0.0.24] - 14-08-2025
 
 - Modified Start and End dates to send them in payload in iso format
