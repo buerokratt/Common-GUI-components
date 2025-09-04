@@ -1,4 +1,4 @@
-import React, {FC, PropsWithChildren, useEffect, useRef, useMemo, useState} from 'react';
+import React, {FC, PropsWithChildren, useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useMutation} from '@tanstack/react-query';
 import {ColumnPinningState, createColumnHelper, PaginationState, SortingState,} from '@tanstack/react-table';
@@ -13,6 +13,7 @@ import {
     DataTable,
     Dialog,
     Drawer,
+    FormCheckbox,
     FormDatepicker,
     FormInput,
     FormMultiselect,
@@ -109,6 +110,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const [updateKey, setUpdateKey] = useState<number>(0)
     const currentDomains = useStore.getState().userDomains;
     const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN?.toLowerCase() === 'true';
+    const testMessageEnabled = import.meta.env.REACT_APP_SHOW_TEST_MESSAGE?.toLowerCase() === 'true';
 
     const parseDateParam = (dateString: string | null) => {
       if (!dateString) return new Date();
@@ -143,9 +145,9 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         });
     }, 500);
 
-    if(multiDomainEnabled) {
+    if (multiDomainEnabled) {
         useStore.subscribe((state, prevState) => {
-            if(JSON.stringify(state.userDomains) !== JSON.stringify(prevState.userDomains)) {
+            if (JSON.stringify(state.userDomains) !== JSON.stringify(prevState.userDomains)) {
                 setUpdateKey(prevState => prevState + 1);
             }
         });
@@ -170,7 +172,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 setValue('endDate', unifyDateFromat(delegatedEndDate));
             }
 
-            if(initialLoad) {
+            if (initialLoad) {
                 fetchData()
             } else {
                 getAllEndedChats.mutate({
@@ -248,7 +250,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 search,
             });
         }
-    }, [selectedColumns]);
+    }, [selectedColumns, currentDomains]);
 
     useEffect(() => {
         listCustomerSupportAgents.mutate();
@@ -356,11 +358,15 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         ];
 
         if (showEmail) {
-            columns.splice(4, 0, {label: t('global.email'), value: 'endUserEmail'}); // insert after name
+            columns.splice(4, 0, {label: t('global.email'), value: 'endUserEmail'});
+        }
+
+        if (testMessageEnabled) {
+            columns.splice(5, 0, {label: t('global.test'), value: 'istest'});
         }
 
         return columns;
-    }, [t, showEmail])
+    }, [t, showEmail, testMessageEnabled])
 
     const chatStatusChangeMutation = useMutation({
         mutationFn: async (data: { chatId: string | number; event: string }) => {
@@ -451,6 +457,31 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         },
     });
 
+    const chatTestChangeMutation = useMutation({
+        mutationFn: (data: {
+            chatId: string | number;
+            isTest: boolean;
+        }) => apiDev.post('chats/mark-test', data),
+        onSuccess: (res, {chatId, isTest}) => {
+            const updatedChatList = filteredEndedChatsList.map((chat) =>
+                chat.id === chatId ? {...chat, isTest} : chat
+            );
+            filterChatsList(updatedChatList);
+            toast?.open({
+                type: 'success',
+                title: t('global.notification'),
+                message: t('toast.success.updateSuccess'),
+            });
+        },
+        onError: (error: AxiosError) => {
+            toast?.open({
+                type: 'error',
+                title: t('global.notificationError'),
+                message: error.message,
+            });
+        },
+    });
+
     const columnHelper = createColumnHelper<ChatType>();
 
     const copyValueToClipboard = async (value: string) => {
@@ -520,6 +551,26 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         </Tooltip>
     );
 
+    const markConversationAsTest = (props: any) => {
+        return <>
+            <FormCheckbox
+                label={''}
+                hideLabel
+                emptyItem={true}
+                name="active"
+
+                item={{
+                    label: '',
+                    value: 'active',
+                    checked: props.getValue()
+                }}
+                onChange={(e) => {
+                    return chatTestChangeMutation.mutate({chatId: props.row.original.id, isTest: e.target.checked})
+                }}
+            />
+        </>
+    }
+
     const detailsView = (props: any) => (
         <Button
             appearance="text"
@@ -574,8 +625,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     }
                 },
                 {
-                  id: `customerSupportFullName`,
-                  header: t('chat.history.csaName') ?? '',
+                    id: `customerSupportFullName`,
+                    header: t('chat.history.csaName') ?? '',
                 }
             ),
             columnHelper.accessor(
@@ -660,11 +711,19 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             }));
         }
 
+        if (testMessageEnabled) {
+            columns.splice(4, 0, columnHelper.accessor('istest', {
+                id: 'istest',
+                header: t('global.test') ?? '',
+                cell: markConversationAsTest
+            }));
+        }
+
         return columns;
-    }, [t, showEmail])
+    }, [t, showEmail, testMessageEnabled])
 
     const getSortingString = () => {
-        if(sorting && sorting.length > 0) {
+        if (sorting && sorting.length > 0) {
             const sortingObject = sorting[0];
             const sortingString = t('sorting.sorting');
             const orderingString = t(`sorting.${sortingObject.desc ? 'desc' : 'asc'}`);
@@ -675,7 +734,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         }
     }
 
-    const getColumnTranslation = (column: string) : string => {
+    const getColumnTranslation = (column: string): string => {
         switch (column) {
             case 'endUserId':
                 return t('global.idCode') ?? ''
@@ -703,6 +762,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 return 'www'
             case 'id':
                 return 'id';
+            case 'istest':
+                return t('global.test') ?? ''
             default:
                 return '';
         }
@@ -902,7 +963,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     </Button>
                 </div>)
             }
-            <div className="card-drawer-container" style={{ height: '100%', overflow: 'auto' }}>
+            <div className="card-drawer-container" style={{height: '100%', overflow: 'auto'}}>
                 <div className="card-wrapper">
                     <Card>
                         <DataTable
