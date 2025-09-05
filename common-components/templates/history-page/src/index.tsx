@@ -6,6 +6,7 @@ import { format, startOfDay, endOfDay, formatISO } from "date-fns";
 import {AxiosError} from 'axios';
 import './History.scss';
 import {MdOutlineRemoveRedEye} from 'react-icons/md';
+import { CgSpinner } from 'react-icons/cg';
 
 import {
     Button,
@@ -111,6 +112,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const currentDomains = useStore.getState().userDomains;
     const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN?.toLowerCase() === 'true';
     const testMessageEnabled = import.meta.env.REACT_APP_SHOW_TEST_MESSAGE?.toLowerCase() === 'true';
+    const [loading, setLoading] = useState(false);
 
     const parseDateParam = (dateString: string | null) => {
       if (!dateString) return new Date();
@@ -819,6 +821,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             {displayTitle && (
                 <h1>{t('chat.history.title')}</h1>
             )}
+
+            <div>
+                <Button appearance={"primary"} onClick={}>
+                    {loading && <CgSpinner className="spinner" />}
+                    {!loading && t('reports.download_xlsx')}
+                </Button>
+
+            </div>
 
             <Card>
                 <Track gap={16}>
