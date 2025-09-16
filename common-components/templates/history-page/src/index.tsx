@@ -2,11 +2,11 @@ import React, {FC, PropsWithChildren, useEffect, useMemo, useRef, useState} from
 import {useTranslation} from 'react-i18next';
 import {useMutation} from '@tanstack/react-query';
 import {ColumnPinningState, createColumnHelper, PaginationState, SortingState,} from '@tanstack/react-table';
-import { format, startOfDay, endOfDay, formatISO } from "date-fns";
+import {endOfDay, format, formatISO, startOfDay} from "date-fns";
 import {AxiosError} from 'axios';
 import './History.scss';
 import {MdOutlineRemoveRedEye} from 'react-icons/md';
-import { CgSpinner } from 'react-icons/cg';
+import {CgSpinner} from 'react-icons/cg';
 
 import {
     Button,
@@ -36,6 +36,7 @@ import {ToastContextType} from "../../../context";
 
 import {getDomainsArray} from "../../../utils/multiDomain-utils";
 import {StoreState} from "../../../store";
+import {saveFile} from "../../../services/file";
 
 type HistoryProps = {
     user: UserInfo | null;
@@ -43,6 +44,7 @@ type HistoryProps = {
     toastContext: ToastContextType | null;
     onMessageClick?: (message: any) => void;
     showComment?: boolean;
+    showDownload?: boolean;
     showEmail?: boolean;
     showSortingLabel?: boolean;
     showStatus?: boolean;
@@ -53,12 +55,19 @@ type HistoryProps = {
     delegatedEndDate?: string;
 }
 
+type ExportResult = {
+    headers: string[];
+    rows: (string | number | null)[][];
+    chatIds: string[];
+};
+
 const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                               user,
                                                               userDomains,
                                                               toastContext,
                                                               onMessageClick,
                                                               showComment = true,
+                                                              showDownload = false,
                                                               showEmail = false,
                                                               showSortingLabel = false,
                                                               showStatus = true,
@@ -812,6 +821,120 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         );
     };
 
+    const mapChatsToExportRows = (
+        chats: ChatType[],
+        allColumns: any[],
+        selectedColumns: string[],
+        t: (key: string) => string
+    ): ExportResult => {
+        const activeColumns =
+            selectedColumns.length > 0
+                ? allColumns.filter(
+                    (col) => col.id && col.id !== 'detail' && selectedColumns.includes(col.id)
+                )
+                : allColumns.filter((col) => col.id && col.id !== 'detail');
+
+        const headers = activeColumns.map(
+            (col) => getColumnTranslation(col.id) || col.header || col.id
+        );
+
+        const rows = chats.map((chat) =>
+            activeColumns.map((col) => {
+                let rawValue: any = null;
+
+                if (typeof col.accessorFn === 'function') {
+                    rawValue = col.accessorFn(chat, 0);
+                } else if (typeof col.accessorKey === 'string') {
+                    rawValue = (chat as any)[col.accessorKey];
+                }
+
+                let processedValue: any = rawValue;
+                switch (col.id) {
+                    case 'created':
+                    case 'ended':
+                        processedValue = rawValue
+                            ? format(
+                                new Date(rawValue),
+                                'dd.MM.yyyy HH:mm:ss',
+                                i18n.language === 'et' ? {locale: et} : undefined
+                            )
+                            : '';
+                        break;
+                    case 'contactsMessage':
+                        processedValue = rawValue ? t('global.yes') : t('global.no');
+                        break;
+                    case 'feedbackRating':
+                        processedValue = rawValue != null ? `${rawValue}/10` : '';
+                        break;
+                    case 'status':
+                        processedValue =
+                            chat.status === CHAT_STATUS.ENDED
+                                ? t('chat.plainEvents.' + (chat.lastMessageEvent ?? ''))
+                                : '';
+                        break;
+                    case 'endUserName':
+                        processedValue = `${chat.endUserFirstName ?? ''} ${chat.endUserLastName ?? ''}`;
+                        break;
+                    default:
+                        processedValue =
+                            typeof rawValue === 'object' ? JSON.stringify(rawValue) : rawValue ?? '';
+                }
+
+                return processedValue;
+            })
+        );
+
+        const chatIds = chats.map((c) => c.id);
+
+        return {headers, rows, chatIds};
+    };
+
+
+    const downloadChatHistory = async () => {
+        setLoading(true);
+        try {
+            let sortBy = 'created desc';
+            if (sorting.length > 0) {
+                const sortType = sorting[0].desc ? 'desc' : 'asc';
+                sortBy = `${sorting[0].id} ${sortType}`;
+            }
+
+            const chats = await apiDev.post('agents/chats/ended', {
+                customerSupportIds: passedCustomerSupportIds,
+                startDate: formatISO(startOfDay(new Date(startDate))),
+                endDate: formatISO(endOfDay(new Date(endDate))),
+                urls: getDomainsArray(currentDomains),
+                page: 1,
+                page_size: 1000,
+                sorting: sortBy,
+                search,
+            });
+
+            const {headers, rows, chatIds} = mapChatsToExportRows(
+                chats.data.response,
+                endedChatsColumns,
+                selectedColumns,
+                t
+            );
+
+            const response = await apiDev.post('chats/ended/download', {
+                headers, rows, chatIds
+            });
+
+
+            await saveFile(
+                response.data.base64String,
+                'history.xlsx',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            );
+
+        } catch (error) {
+            console.error('Error getting CSV file:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const endUserFullName = getUserName();
 
     if (!filteredEndedChatsList) return <>Loading... {{filteredEndedChatsList}} something is wrong </>;
@@ -822,13 +945,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 <h1>{t('chat.history.title')}</h1>
             )}
 
-            <div>
-                <Button appearance={"primary"} onClick={}>
-                    {loading && <CgSpinner className="spinner" />}
-                    {!loading && t('reports.download_xlsx')}
-                </Button>
-
-            </div>
+            {showDownload && (
+                <div>
+                    <Button appearance={"primary"} onClick={downloadChatHistory}>
+                        {loading && <CgSpinner className="spinner"/>}
+                        {!loading && t('files.download_xlsx')}
+                    </Button>
+                </div>
+            )}
 
             <Card>
                 <Track gap={16}>

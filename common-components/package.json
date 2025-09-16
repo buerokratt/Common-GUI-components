@@ -1,6 +1,6 @@
 {
   "name": "@buerokratt-ria/common-gui-components",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "Common GUI components and pre defined templates.",
   "main": "index.ts",
   "author": "ExiRai",
@@ -29,6 +29,7 @@
     "downshift": "^7.0.5",
     "esbuild": "^0.19.5",
     "framer-motion": "^8.5.5",
+    "file-saver": "^2.0.5",
     "i18next": "^22.4.5",
     "i18next-browser-languagedetector": "^7.0.1",
     "linkify-react": "^4.1.1",
