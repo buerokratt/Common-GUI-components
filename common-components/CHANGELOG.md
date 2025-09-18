@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.26] - 15-09-2025
+
+- Added download button do download chat history with currently selected criteriasa
+- Added new optional param to enable this button(disabled by default)
+
 ## [0.0.25] - 01-09-2025
 
 - Added test column to display chats mark for test
