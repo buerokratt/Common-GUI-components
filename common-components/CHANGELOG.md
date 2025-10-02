@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.27] - 02-10-2025
+
+- Adding missing showTest with default to true if undefined.
+
 ## [0.0.26] - 15-09-2025
 
 - Added download button do download chat history with currently selected criteriasa

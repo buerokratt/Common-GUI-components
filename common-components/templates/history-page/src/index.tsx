@@ -121,6 +121,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const currentDomains = useStore.getState().userDomains;
     const multiDomainEnabled = import.meta.env.REACT_APP_ENABLE_MULTI_DOMAIN?.toLowerCase() === 'true';
     const testMessageEnabled = import.meta.env.REACT_APP_SHOW_TEST_MESSAGE?.toLowerCase() === 'true';
+    const envVal = import.meta.env.REACT_APP_SHOW_TEST_CONVERSATIONS;
+    const showTest = envVal === undefined ? true : envVal.toLowerCase() === 'true';
     const [loading, setLoading] = useState(false);
 
     const parseDateParam = (dateString: string | null) => {
@@ -301,6 +303,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 startDate: formatISO(startOfDay(new Date(data.startDate))),
                 endDate: formatISO(endOfDay(new Date(data.endDate))),
                 urls: getDomainsArray(currentDomains),
+                showTest: showTest,
                 page: data.pagination.pageIndex + 1,
                 page_size: data.pagination.pageSize,
                 sorting: sortBy,
