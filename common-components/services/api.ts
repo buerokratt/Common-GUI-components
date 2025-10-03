@@ -20,6 +20,16 @@ const apiDev = axios.create({
     withCredentials: true,
 });
 
+const apiDevEnded = axios.create({
+    baseURL: import.meta.env.REACT_APP_RUUTER_PRIVATE_ENDED_API_URL,
+    headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+    },
+    withCredentials: true,
+});
+
+
 const AxiosInterceptor = ({ children }) => {
     const { t } = useTranslation();
 
@@ -71,4 +81,9 @@ apiDev.interceptors.request.use(
     handleRequestError
 );
 
-export { api, apiDev, AxiosInterceptor };
+apiDevEnded.interceptors.request.use(
+    (axiosRequest) => axiosRequest,
+    handleRequestError
+);
+
+export { api, apiDev, apiDevEnded,AxiosInterceptor };

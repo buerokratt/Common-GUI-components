@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.28] - 03-10-2025
+
+- Defined new endpoint specifically for ended chats. REACT_APP_RUUTER_PRIVATE_ENDED_API_URL
+
 ## [0.0.27] - 02-10-2025
 
 - Adding missing showTest with default to true if undefined.
