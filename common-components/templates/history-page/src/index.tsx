@@ -25,7 +25,7 @@ import {
 } from '../../../ui-components';
 
 import {Chat as ChatType, CHAT_EVENTS, CHAT_STATUS} from '../../../types/chat';
-import {apiDev} from '../../../services';
+import {apiDev, apiDevEnded} from '../../../services';
 import {Controller, useForm} from 'react-hook-form';
 import {useLocation, useSearchParams} from 'react-router-dom';
 import {unifyDateFromat} from './unfiyDate';
@@ -298,7 +298,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 sortBy = `${sorting[0].id} ${sortType}`;
             }
 
-            return apiDev.post('agents/chats/ended', {
+            return apiDevEnded.post('agents/chats/ended', {
                 customerSupportIds: data.customerSupportIds,
                 startDate: formatISO(startOfDay(new Date(data.startDate))),
                 endDate: formatISO(endOfDay(new Date(data.endDate))),
@@ -902,7 +902,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 sortBy = `${sorting[0].id} ${sortType}`;
             }
 
-            const chats = await apiDev.post('agents/chats/ended', {
+            const chats = await apiDevEnded.post('agents/chats/ended', {
                 customerSupportIds: passedCustomerSupportIds,
                 startDate: formatISO(startOfDay(new Date(startDate))),
                 endDate: formatISO(endOfDay(new Date(endDate))),
@@ -920,7 +920,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 t
             );
 
-            const response = await apiDev.post('chats/ended/download', {
+            const response = await apiDevEnded.post('chats/ended/download', {
                 headers, rows, chatIds
             });
 
