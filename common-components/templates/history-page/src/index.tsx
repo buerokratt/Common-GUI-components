@@ -921,7 +921,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             );
 
             const response = await apiDevEnded.post('chats/ended/download', {
-                headers, rows, chatIds
+                headers, rows, chatIds, language: i18n.language
             });
 
 
