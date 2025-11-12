@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.30] - 10-11-2025
+
+- Enhanced Markdownify
+
 ## [0.0.29] - 03-11-2025
 
 - Added Language to chats/ended/download
