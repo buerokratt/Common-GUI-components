@@ -590,6 +590,10 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             appearance="text"
             onClick={() => {
                 setSelectedChat(props.row.original);
+                setSearchParams((params) => {
+                    params.set("chat", props.row.original.id);
+                    return params;
+                });
                 setChatState(props.row.original.lastMessageEvent);
             }}
         >

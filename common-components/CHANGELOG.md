@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.31] - 18-11-2025
+
+- Added chat id to URL params in chats history page.
+
 ## [0.0.30] - 10-11-2025
 
 - Enhanced Markdownify
