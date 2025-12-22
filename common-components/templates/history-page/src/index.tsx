@@ -124,6 +124,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const envVal = import.meta.env.REACT_APP_SHOW_TEST_CONVERSATIONS;
     const showTest = envVal === undefined ? true : envVal.toLowerCase() === 'true';
     const [loading, setLoading] = useState(false);
+    const abortRef = useRef<AbortController | null>(null);
 
     const parseDateParam = (dateString: string | null) => {
       if (!dateString) return new Date();
@@ -158,13 +159,20 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         });
     }, 500);
 
-    if (multiDomainEnabled) {
-        useStore.subscribe((state, prevState) => {
-            if (JSON.stringify(state.userDomains) !== JSON.stringify(prevState.userDomains)) {
-                setUpdateKey(prevState => prevState + 1);
+    useEffect(() => {
+        if (!multiDomainEnabled) return;
+
+        const unsubscribe = useStore.subscribe((state, prevState) => {
+            if (
+                JSON.stringify(state.userDomains) !==
+                JSON.stringify(prevState.userDomains)
+            ) {
+                setUpdateKey((v) => v + 1);
             }
         });
-    }
+
+        return () => unsubscribe();
+    }, [multiDomainEnabled, useStore]);
 
     useEffect(() => {
         if (passedChatId != null) {
@@ -292,6 +300,9 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             sorting: SortingState;
             search: string;
         }) => {
+            abortRef.current?.abort();
+            abortRef.current = new AbortController();
+
             let sortBy = 'created desc';
             if (sorting.length > 0) {
                 const sortType = sorting[0].desc ? 'desc' : 'asc';
@@ -308,7 +319,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 page_size: data.pagination.pageSize,
                 sorting: sortBy,
                 search,
-            });
+            },
+                {
+                    signal: abortRef.current.signal
+                }
+            );
         },
         onSuccess: (res: any) => {
             if (selectedChat)

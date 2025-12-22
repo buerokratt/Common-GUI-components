@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.33] - 22.12.2025
+
+- Updated domain logic change
+- Added abort ref to cancel unnecessary api calls.
+
 ## [0.0.31] - 18-11-2025
 
 - Added chat id to URL params in chats history page.
