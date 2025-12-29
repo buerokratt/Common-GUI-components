@@ -580,25 +580,41 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         </Tooltip>
     );
 
-    const markConversationAsTest = (props: any) => {
-        return <>
-            <FormCheckbox
-                label={''}
-                hideLabel
-                emptyItem={true}
-                name="active"
+    const updateChatTest = function (chatId: string, isTest: boolean) {
+      setFilteredEndedChatsList((prevChats) =>
+        prevChats.map((chat) => (chat.id === chatId ? ({ ...chat, istest: isTest } as ChatType) : chat))
+      );
 
-                item={{
-                    label: '',
-                    value: 'active',
-                    checked: props.getValue()
-                }}
-                onChange={(e) => {
-                    return chatTestChangeMutation.mutate({chatId: props.row.original.id, isTest: e.target.checked})
-                }}
-            />
-        </>
-    }
+      if (selectedChat && selectedChat.id === chatId) {
+        setSelectedChat({
+          ...selectedChat,
+          istest: isTest,
+        } as ChatType);
+      }
+    };
+
+    const markConversationAsTest = (props: any) => {
+      const chatId = props.row.original.id;
+      const newIsTestValue = props.getValue();
+      return (
+        <FormCheckbox
+          checked={newIsTestValue}
+          label={""}
+          hideLabel
+          emptyItem={true}
+          name="active"
+          item={{
+            label: "",
+            value: "active",
+          }}
+          onChange={(e) => {
+            const isTest = e.target.checked;
+            updateChatTest(chatId, isTest);
+            chatTestChangeMutation.mutate({ chatId, isTest });
+          }}
+        />
+      );
+    };
 
     const detailsView = (props: any) => (
         <Button

@@ -9,6 +9,11 @@ All changes to this project will be documented in this file.
 - Updated domain logic change
 - Added abort ref to cancel unnecessary api calls.
 
+## [0.0.32] - 19-11-2025
+
+- Fixed isTest Mark.
+- Fixed Columns Spacing in Firefox
+
 ## [0.0.31] - 18-11-2025
 
 - Added chat id to URL params in chats history page.
