@@ -87,6 +87,7 @@ export interface Chat {
     feedbackRating?: number;
     nps?: number;
     userDisplayName?: string;
+    istest?: boolean;
 }
 export interface GroupedChat {
     myChats: Chat[];
