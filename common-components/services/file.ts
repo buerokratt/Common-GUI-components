@@ -1,7 +1,18 @@
-import { Buffer } from 'buffer';
+/**
+ * Converts a base64 string to a Uint8Array (browser-compatible alternative to Buffer)
+ */
+const base64ToUint8Array = (base64: string): Uint8Array<ArrayBuffer> => {
+    const binaryString = atob(base64);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+};
 
 export const saveFile = async (base64String: string, fileName: `${string}.${string}`, type: string) => {
-    const blob = new Blob([Buffer.from(base64String, 'base64')], {
+    const bytes = base64ToUint8Array(base64String);
+    const blob = new Blob([bytes], {
         type: type,
     });
 
