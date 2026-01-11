@@ -12,6 +12,7 @@ import "./HistoricalChat.scss";
 import { apiDev } from "../../services/api";
 import ChatEvent from "../../ui-components/ChatEvent";
 import { ToastContextType } from "../../context";
+import { AUTHOR_ROLES } from "../../utils/constants";
 
 type ChatProps = {
   chat: ChatType;
@@ -64,6 +65,11 @@ const HistoricalChat: FC<ChatProps> = ({
   const [lastMessage, setLastMessage] = useState<Message>();
   const [statuses, setStatuses] = useState(chatStatuses);
 
+  const messageGroupsRef = useRef(messageGroups);
+  const setMessageGroupsState = (data: GroupedMessage[]) => {
+    messageGroupsRef.current = data;
+    setMessageGroups(data);
+  };
   useEffect(() => {
     getMessages();
   }, [trigger]);
@@ -100,55 +106,64 @@ const HistoricalChat: FC<ChatProps> = ({
   useEffect(() => {
     if (!messagesList) return;
     let groupedMessages: GroupedMessage[] = [];
-    messagesList.forEach((message, i) => {
-      const currentMessage = message;
-      const content = currentMessage.content?.trim() ?? "";
-
-      if (content.startsWith("#service,") || content.startsWith("#common_service,")) {
-        const allPreviousButtons = messagesList
-          .slice(0, i)
-          .flatMap((msg) => (msg.buttons ? JSON.parse(msg.buttons) : []));
-        currentMessage.content = allPreviousButtons.find((b: any) => b.payload.includes(content))?.title ?? content;
-      }
-
+    messagesList.forEach((message) => {
       const lastGroup = groupedMessages[groupedMessages.length - 1];
-      if (lastGroup?.type === currentMessage.authorRole) {
-        if (
-          !currentMessage.event ||
-          currentMessage.event.toLowerCase() === CHAT_EVENTS.GREETING ||
-          currentMessage.event.toLowerCase() === CHAT_EVENTS.WAITING_VALIDATION ||
-          currentMessage.event.toLowerCase() === CHAT_EVENTS.APPROVED_VALIDATION
-        ) {
-          lastGroup.messages.push({
-            ...currentMessage,
-            content:
-              currentMessage.event === CHAT_EVENTS.WAITING_VALIDATION
-                ? t("chat.waiting_validation").toString()
-                : currentMessage.content,
+      if (
+        lastGroup &&
+        lastGroup.type === AUTHOR_ROLES.BACKOFFICE_USER &&
+        lastGroup.messages.at(-1) &&
+        message.event === CHAT_EVENTS.READ
+      ) {
+        lastGroup.messages.push(message);
+        return;
+      }
+      if (lastGroup?.type === message.authorRole) {
+        if (!message.event || message.event === "" || message.event === "greeting") {
+          lastGroup.messages.push({ ...message });
+        } else if (message.event === CHAT_EVENTS.WAITING_VALIDATION && chat.status === CHAT_STATUS.VALIDATING) {
+          groupedMessages.push({
+            name: "Bürokratt",
+            type: "buerokratt",
+            title: "",
+            messages: [{ ...message }],
           });
         } else {
           groupedMessages.push({
             name: "",
             type: "event",
             title: "",
-            messages: [{ ...currentMessage }],
+            messages: [{ ...message }],
           });
         }
-      } else {
+      } else if (!message.event || message.event === "" || message.event === "greeting") {
         const isBackOfficeUser =
-          currentMessage.authorRole === "backoffice-user"
-            ? `${currentMessage.authorFirstName} ${currentMessage.authorLastName}`
+          message.authorRole === "backoffice-user"
+            ? `${message.authorFirstName} ${message.authorLastName}`
             : BACKOFFICE_NAME.DEFAULT;
         groupedMessages.push({
-          name: currentMessage.authorRole === "end-user" ? endUserFullName : isBackOfficeUser,
-          type: currentMessage.authorRole,
-          title: currentMessage.csaTitle ?? "",
-          messages: [{ ...currentMessage }],
+          name: message.authorRole === "end-user" ? endUserFullName : isBackOfficeUser,
+          type: message.authorRole,
+          title: message.csaTitle ?? "",
+          messages: [{ ...message }],
+        });
+      } else if (message.event === CHAT_EVENTS.WAITING_VALIDATION && chat.status === CHAT_STATUS.VALIDATING) {
+        groupedMessages.push({
+          name: "Bürokratt",
+          type: "buerokratt",
+          title: "",
+          messages: [{ ...message }],
+        });
+      } else {
+        groupedMessages.push({
+          name: "",
+          type: "event",
+          title: "",
+          messages: [{ ...message }],
         });
       }
     });
 
-    setMessageGroups(groupedMessages);
+    setMessageGroupsState(groupedMessages);
     const lastMessage = messagesList[messagesList.length - 1];
     if (
       lastMessage?.event?.toLowerCase() === CHAT_EVENTS.CLIENT_LEFT_FOR_UNKNOWN_REASONS ||
@@ -184,25 +199,34 @@ const HistoricalChat: FC<ChatProps> = ({
       } else {
         return (
           <div key={message.id}>
-            <div className="historical-chat__group-header">
-            <div className="historical-chat__group-event-initials">
-              {group.type === "buerokratt" || group.type === "chatbot" ? (
-                <BykLogoWhite height={24} />
-              ) : (
-                <>
-                  {group.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .toUpperCase()}
-                </>
-              )}
-            </div>
-            <div className="historical-chat__group-event-name">
-              {group.name}
-              {group.title.length > 0 && <div className="title">{group.title}</div>}
-            </div>
-            </div>
+            {group.name.trim() && (
+              <div className="historical-chat__group-header">
+                <div className="historical-chat__group-event-initials">
+                  {group.type === "buerokratt" || group.type === "chatbot" ? (
+                    <BykLogoWhite height={24} />
+                  ) : (
+                    (() => {
+                      if (group.name) {
+                        const initials = group.name
+                          .split(" ")
+                          .map((n) => n[0])
+                          .join("")
+                          .toUpperCase();
+                        return <>{initials}</>;
+                      } else {
+                        return <></>;
+                      }
+                    })()
+                  )}
+                </div>
+                {group.name && (
+                  <div className="historical-chat__group-event-name">
+                    {group.name}
+                    {group.title.length > 0 && <div className="title">{group.title}</div>}
+                  </div>
+                )}
+              </div>
+            )}
             <div className="historical-chat__messages">
               <ChatMessage
                 message={message}
