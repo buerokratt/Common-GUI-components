@@ -105,8 +105,8 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
-    padding-left: 56px;
     position: relative;
+    padding-left: 0px !important;
 
     &:not(:last-child) {
       margin-bottom: 8px;
@@ -148,9 +148,13 @@
     &--buerokratt,
     &--chatbot {
       #{$self} {
+        &__group-header {
+          align-items: center;
+        }
+
         &__group-initials {
           background-color: get-color(sapphire-blue-10);
-          left: 0;
+          position: relative;
         }
 
         &__group-name {
@@ -158,6 +162,7 @@
           text-align: left;
           margin-left: 0;
           font-size: $veera-font-size-100;
+          padding-top: 0;
         }
 
         &__messages {
@@ -165,6 +170,7 @@
           flex-direction: column;
           gap: 4px;
           align-items: flex-start;
+          padding-left: 50px;
         }
 
         &__message-text {
@@ -172,8 +178,7 @@
           color: get-color(white);
 
           :any-link {
-            background: url('../../static/icons/link-external-blue.svg')
-            no-repeat right center;
+            background: url('../../static/icons/link-external-blue.svg') no-repeat right center;
             padding-right: 1.25em;
             color: blue;
             text-decoration: underline;
@@ -186,18 +191,57 @@
       }
     }
 
+    &--end-user {
+      #{$self} {
+        &__group-header {
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+        }
+      }
+
+      &__messages {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        align-items: flex-end;
+        padding-left: 50px !important;
+      }
+
+      &__message-text {
+        background-color: get-color(black-coral-10);
+        color: get-color(white);
+
+        :any-link {
+          background: url('../../static/icons/link-external-white.svg') no-repeat right center;
+          padding-right: 1.25em;
+          color: white;
+          text-decoration: underline;
+        }
+
+        &:hover {
+          background-color: #535665;
+        }
+      }
+    }
+
     &--backoffice-user {
       #{$self} {
+        &__group-header {
+          align-items: center;
+        }
+
         &__group-initials {
           background-color: get-color(black-coral-10);
           color: get-color(white);
-          left: 0;
+          position: relative;
         }
 
         &__group-name {
           text-align: left;
           margin-left: 0;
           font-size: $veera-font-size-100;
+          padding-top: 0;
         }
 
         &__messages {
@@ -205,6 +249,7 @@
           flex-direction: column;
           gap: 4px;
           align-items: flex-start;
+          padding-left: 50px;
         }
 
         &__message-text {
@@ -212,8 +257,7 @@
           color: get-color(white);
 
           :any-link {
-            background: url('../../static/icons/link-external-white.svg')
-            no-repeat right center;
+            background: url('../../static/icons/link-external-white.svg') no-repeat right center;
             padding-right: 1.25em;
             color: white;
             text-decoration: underline;
@@ -229,6 +273,13 @@
         }
       }
     }
+  }
+
+  &__group-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 40px;
   }
 
   &__group-initials {
@@ -256,7 +307,10 @@
     margin-left: 10rem;
     margin-right: 3rem;
     text-align: right;
-    padding-top: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
   }
 
   &__messages {
@@ -264,6 +318,7 @@
     flex-direction: column;
     gap: 4px;
     align-items: flex-end;
+    padding-left: 50px;
   }
 
   &__messageContainer {
@@ -327,8 +382,7 @@
     }
 
     :any-link {
-      background: url('../../static/icons/link-external-blue.svg') no-repeat
-      right center;
+      background: url('../../static/icons/link-external-blue.svg') no-repeat right center;
       padding-right: 1.25em;
       color: blue;
       text-decoration: underline;
@@ -358,6 +412,28 @@
     user-select: none;
   }
 
+  &__message-failed-wrapper {
+    gap: 2px;
+    margin-left: -22px;
+  }
+
+  &__message-failed {
+    color: red;
+    display: flex;
+    font-size: 11px;
+    line-height: $veera-line-height-500;
+  }
+
+  &__message-failed-content {
+    margin-top: 4px;
+  }
+
+  &__message-failed-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+  }
+
   &__message-status {
     color: get-color(black-coral-6);
     font-size: 11px;
@@ -377,31 +453,31 @@
 }
 
 .edit-toolbar {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 10px;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 10px;
 
-    &__header {
-      align-items: center;
-      display: flex;
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    &__textarea {
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    &__edit-actions {
-      display: flex;
-      grid-column: 2;
-      grid-row: 2;
-      gap: 10px;
-      justify-content: flex-end;
-    }
+  &__header {
+    align-items: center;
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
   }
+
+  &__textarea {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  &__edit-actions {
+    display: flex;
+    grid-column: 2;
+    grid-row: 2;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+}
 
 .title {
   font-size: 13px;
@@ -426,7 +502,7 @@
 }
 
 .reset p {
-  margin:  0 0 0.5rem;
+  margin: 0 0 0.5rem;
   padding: 0;
 }
 
@@ -444,4 +520,32 @@
 .reset a {
   text-decoration: none;
   color: inherit;
+}
+
+.newMessageContainer {
+  position: absolute;
+  bottom: 115px;
+  right: 0;
+  background: transparent;
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.newMessage {
+  display: inline-block;
+  width: max-content;
+  background-color: lightgray;
+  padding: 6px 28px;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  margin-left: auto;
+  margin-right: 20px !important;
+  font-size: 18px;
+
+  &:hover {
+    cursor: pointer;
+    background-color: get-color(sapphire-blue-10);
+    color: white;
+  }
 }

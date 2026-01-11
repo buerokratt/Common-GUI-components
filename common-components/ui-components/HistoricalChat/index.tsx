@@ -184,6 +184,7 @@ const HistoricalChat: FC<ChatProps> = ({
       } else {
         return (
           <div key={message.id}>
+            <div className="historical-chat__group-header">
             <div className="historical-chat__group-event-initials">
               {group.type === "buerokratt" || group.type === "chatbot" ? (
                 <BykLogoWhite height={24} />
@@ -200,6 +201,7 @@ const HistoricalChat: FC<ChatProps> = ({
             <div className="historical-chat__group-event-name">
               {group.name}
               {group.title.length > 0 && <div className="title">{group.title}</div>}
+            </div>
             </div>
             <div className="historical-chat__messages">
               <ChatMessage
@@ -231,6 +233,7 @@ const HistoricalChat: FC<ChatProps> = ({
                   eventGroup(group)
                 ) : (
                   <>
+                  <div className="historical-chat__group-header">
                     <div className="historical-chat__group-initials">
                       {group.type === "buerokratt" || group.type === "chatbot" ? (
                         <BykLogoWhite height={24} />
@@ -248,6 +251,7 @@ const HistoricalChat: FC<ChatProps> = ({
                       {group.name}
                       {group.title.length > 0 && <div className="title">{group.title}</div>}
                     </div>
+                  </div>
                     <div className="historical-chat__messages">
                       {group.messages.map((message, i) => (
                         <ChatMessage
