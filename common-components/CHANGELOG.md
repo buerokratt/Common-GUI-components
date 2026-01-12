@@ -4,6 +4,15 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.35] - 09.01.2026
+
+- Fixed Pagination on date change
+- Fix Profile Picture and namu UI conflict
+
+## [0.0.34] - 30.12.2025
+
+- Fix building dependents
+
 ## [0.0.33] - 22.12.2025
 
 - Updated domain logic change

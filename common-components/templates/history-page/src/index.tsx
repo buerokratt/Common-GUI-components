@@ -1024,7 +1024,10 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                     onChange={(v) => {
                                                         field.onChange(v);
                                                         const start = formatISO(startOfDay(new Date(v)));
+                                                        const resetPagination = { pageIndex: 0, pageSize: pagination.pageSize };
+                                                        setPagination(resetPagination);
                                                         setSearchParams((params) => {
+                                                            params.set("page", "1");
                                                             params.set('start', start);
                                                             return params;
                                                         });
@@ -1032,7 +1035,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                             startDate: start,
                                                             endDate: formatISO(endOfDay(new Date(endDate))),
                                                             customerSupportIds: passedCustomerSupportIds,
-                                                            pagination,
+                                                            pagination: resetPagination,
                                                             sorting,
                                                             search,
                                                         });
@@ -1056,7 +1059,10 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                     onChange={(v) => {
                                                         field.onChange(v);
                                                         const end = formatISO(endOfDay(new Date(v)));
+                                                        const resetPagination = { pageIndex: 0, pageSize: pagination.pageSize };
+                                                        setPagination(resetPagination);
                                                         setSearchParams((params) => {
+                                                            params.set("page", "1");
                                                             params.set('end', end);
                                                             return params;
                                                         });
@@ -1064,7 +1070,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                             startDate: formatISO(startOfDay(new Date(startDate))),
                                                             endDate: end,
                                                             customerSupportIds: passedCustomerSupportIds,
-                                                            pagination,
+                                                            pagination: resetPagination,
                                                             sorting,
                                                             search,
                                                         });
