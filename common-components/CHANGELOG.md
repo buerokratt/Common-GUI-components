@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.36] - 14.01.2026
+
+- Hide $backoffice, $validate_ and $general_knowledge from end user
+
 ## [0.0.35] - 09.01.2026
 
 - Fixed Pagination on date change
