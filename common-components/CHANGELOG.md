@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.38] - 20.01.2026
+
+- Added isFiveRatingScale Handle
+
 ## [0.0.37] - 19.01.2026
 
 - Added Sanitization to Markdownify
