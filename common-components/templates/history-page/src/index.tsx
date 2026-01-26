@@ -704,7 +704,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 header: t('chat.history.rating') ?? '',
                 cell: (props) => {
                     const value = props.getValue();
-                    return value !== null && value !== undefined ? <span>{`${value}/10`}</span> : null;
+                    return value !== null && value !== undefined ? <span>{`${value}/${props.row.original?.isFiveRatingScale === 'true' ? 5 : 10}`}</span> : null;
                 }
             }),
             columnHelper.accessor('feedbackText', {
@@ -887,6 +887,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 }
 
                 let processedValue: any = rawValue;
+                const totalCheck = chat.isFiveRatingScale === 'true' ? 5 : 10;
                 switch (col.id) {
                     case 'created':
                     case 'ended':
@@ -902,7 +903,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                         processedValue = rawValue ? t('global.yes') : t('global.no');
                         break;
                     case 'feedbackRating':
-                        processedValue = rawValue != null ? `${rawValue}/10` : '';
+                        processedValue = rawValue == null ? '' : `${rawValue}/${totalCheck}`;
                         break;
                     case 'status':
                         processedValue =
