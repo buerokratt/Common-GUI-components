@@ -131,18 +131,14 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
       return new Date(dateString.split("+")[0]);
     };
 
-    const {control, setValue, watch} = useForm<{
-        startDate: Date | string;
-        endDate: Date | string;
+    const { control, setValue, watch } = useForm<{
+      startDate: Date | string;
+      endDate: Date | string;
     }>({
-        defaultValues: {
-            startDate: passedStartDate
-            ? parseDateParam(passedStartDate)
-            : new Date(new Date().setUTCHours(0, 0, 0, 0)),
-             endDate: passedEndDate
-            ? parseDateParam(passedEndDate)
-            : new Date(new Date().setUTCHours(23, 59, 59, 999)),
-        },
+      defaultValues: {
+        startDate: passedStartDate ? parseDateParam(passedStartDate) : startOfDay(new Date()),
+        endDate: passedEndDate ? parseDateParam(passedEndDate) : endOfDay(new Date()),
+      },
     });
 
     const startDate = watch('startDate');
@@ -670,7 +666,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
                         return filteredNames.join(", ");
                     } else {
-                        return '-';
+                        return "Bürokratt";
                     }
                 },
                 {

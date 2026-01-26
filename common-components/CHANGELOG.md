@@ -4,6 +4,12 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.39] - 26.01.2026
+
+- Changed initial end date to be the same as the start date
+- Changed empty advisor name to default to 'Bürokratt' instead of '-'
+- Fixed CSA messages display
+
 ## [0.0.38] - 20.01.2026
 
 - Added isFiveRatingScale Handle
