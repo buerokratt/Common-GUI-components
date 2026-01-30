@@ -14,6 +14,7 @@ const ChatEvent: FC<ChatEventProps> = ({ message }) => {
     const { t } = useTranslation();
     const {
         event,
+        content,
         authorTimestamp,
         forwardedByUser,
         forwardedFromCsa,
@@ -208,7 +209,7 @@ const ChatEvent: FC<ChatEventProps> = ({ message }) => {
 
     return (
         <div className="active-chat__event-message">
-            <p>{EVENT_PARAMS}</p>
+           <p>{content || EVENT_PARAMS}</p>
         </div>
     );
 };
