@@ -189,57 +189,12 @@ const HistoricalChat: FC<ChatProps> = ({
   }, [messageGroups]);
 
   const isEvent = (group: GroupedMessage) => {
-    return (group.type === "event" || group.name.trim() === "" ||  group.messages.some((message) => message.event && !message.content));
+    return (group.type === "event" || group.name.trim() === "" ||  group.messages.some((message) => message.event && message.event !== CHAT_EVENTS.GREETING));
   };
 
   const eventGroup = (group: GroupedMessage) => {
     return group.messages.map((message) => {
-      if (message.event && !message.content) {
-        return <ChatEvent key={message.id} message={message} />;
-      } else {
-        return (
-          <div key={message.id}>
-            {group.name.trim() && (
-              <div className="historical-chat__group-header">
-                <div className="historical-chat__group-event-initials">
-                  {group.type === "buerokratt" || group.type === "chatbot" ? (
-                    <BykLogoWhite height={24} />
-                  ) : (
-                    (() => {
-                      if (group.name) {
-                        const initials = group.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase();
-                        return <>{initials}</>;
-                      } else {
-                        return <></>;
-                      }
-                    })()
-                  )}
-                </div>
-                {group.name && (
-                  <div className="historical-chat__group-event-name">
-                    {group.name}
-                    {group.title.length > 0 && <div className="title">{group.title}</div>}
-                  </div>
-                )}
-              </div>
-            )}
-            <div className="historical-chat__messages">
-              <ChatMessage
-                message={message}
-                key={`${message.id ?? ""}`}
-                toastContext={toastContext}
-                onMessageClick={(message) => {
-                  onMessageClick?.(message);
-                }}
-              />
-            </div>
-          </div>
-        );
-      }
+      return <ChatEvent key={message.id} message={message} />;
     });
   };
 
