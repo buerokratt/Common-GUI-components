@@ -89,6 +89,8 @@ export interface Chat {
     userDisplayName?: string;
     istest?: boolean;
     isFiveRatingScale?: string;
+    allCsa?: string[];
+    totalPages?: number;
 }
 export interface GroupedChat {
     myChats: Chat[];
