@@ -340,23 +340,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 chatId: passedChatId,
             }),
         onSuccess: (res: any) => {
-            setSelectedChat({
-              ...res.data.response,
-              comment: selectedChat?.comment,
-              commentAddedDate: selectedChat?.commentAddedDate,
-              commentAuthor: selectedChat?.commentAuthor,
-              labels: selectedChat?.labels,
-              lastMessageEvent: selectedChat?.lastMessageEvent,
-              contactsMessage: selectedChat?.contactsMessage,
-              isFiveRatingScale: selectedChat?.isFiveRatingScale,
-              istest: selectedChat?.istest,
-              nps: selectedChat?.nps,
-              userDisplayName: selectedChat?.userDisplayName,
-              customerSupportFirstName: selectedChat?.customerSupportFirstName,
-              customerSupportLastName: selectedChat?.customerSupportLastName,
-              allCsa: selectedChat?.allCsa,
-              totalPages: selectedChat?.totalPages,
-            });
+            setSelectedChat(res.data.response);
             setChatState(res.data.response);
         },
     });

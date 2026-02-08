@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.43] - 06.02.2026
+
+- Prevent url fetch in markdownify for non image urls
+- Added Comment Settings to get-chat-by-id
+
 ## [0.0.42] - 04.02.2026
 
 - Fix comment display in chat content view
