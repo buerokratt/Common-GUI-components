@@ -999,6 +999,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                             name="searchChats"
                             placeholder={t('chat.history.searchChats') + '...'}
                             onChange={(e) => {
+                                setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                                setSearchParams((params) => {
+                                  params.set("page", "1");
+                                  return params;
+                                });
                                 setSearch(e.target.value);
                                 debouncedGetAllEnded(e.target.value);
                             }}

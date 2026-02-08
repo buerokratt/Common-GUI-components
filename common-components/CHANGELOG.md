@@ -8,6 +8,8 @@ All changes to this project will be documented in this file.
 
 - Prevent url fetch in markdownify for non image urls
 - Added Comment Settings to get-chat-by-id
+- Enhance eventGroup Function
+- Reset Pagination on search change
 
 ## [0.0.42] - 04.02.2026
 
