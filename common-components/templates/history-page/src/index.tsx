@@ -356,7 +356,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             }),
         onSuccess: (res: any) => {
             setCustomerSupportAgents([
-                {label: '-', value: '-'},
                 {label: 'Bürokratt', value: 'chatbot'},
                 ...res.data.response.map((item) => ({
                     label: [item.firstName, item.lastName].join(' ').trim(),
@@ -1114,18 +1113,27 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 setSearchParams((params) => {
                                     params.delete('customerSupportIds');
                                     params.set('page', '1');
-                                    selection?.forEach((s) =>
-                                        params.append('customerSupportIds', s.value)
-                                    );
+                                    selection?.forEach((s) => {
+                                      params.append("customerSupportIds", s.value);
+                                      if (s.value === "chatbot") params.append("customerSupportIds", "-");
+                                      return params;
+                                    });
                                     return params;
                                 });
 
                                 setPagination({pageIndex: 0, pageSize: pagination.pageSize});
 
+                                const customerSupportIds =
+                                  selection?.reduce((acc, s) => {
+                                    acc.push(s.value);
+                                    if (s.value === "chatbot") acc.push("-");
+                                    return acc;
+                                  }, []) || [];
+
                                 getAllEndedChats.mutate({
                                     startDate,
                                     endDate,
-                                    customerSupportIds: selection?.map((s) => s.value) || [],
+                                    customerSupportIds: customerSupportIds,
                                     pagination: {pageIndex: 0, pageSize: pagination.pageSize},
                                     sorting,
                                     search,

@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.44] - 26.02.2026
+
+- Removed _ from chosen CSA's list
+
 ## [0.0.43] - 06.02.2026
 
 - Prevent url fetch in markdownify for non image urls
