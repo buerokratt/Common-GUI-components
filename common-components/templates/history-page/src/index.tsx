@@ -933,26 +933,22 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 sortBy = `${sorting[0].id} ${sortType}`;
             }
 
-            const chats = await apiDevEnded.post('agents/chats/ended', {
-                customerSupportIds: passedCustomerSupportIds,
+            const { headers } = mapChatsToExportRows([], endedChatsColumns, selectedColumns, t);
+            const activeColumns = selectedColumns.length > 0
+                ? endedChatsColumns.filter((col) => col.id && col.id !== 'detail' && selectedColumns.includes(col.id))
+                : endedChatsColumns.filter((col) => col.id && col.id !== 'detail');
+            const columnIds = activeColumns.map((col) => col.id!);
+
+            const response = await apiDevEnded.post('chats/ended/download', {
+                headers,
+                columnIds,
+                language: i18n.language,
                 startDate: formatISO(startOfDay(new Date(startDate))),
                 endDate: formatISO(endOfDay(new Date(endDate))),
                 urls: getDomainsArray(currentDomains),
-                page: 1,
-                page_size: 1000,
                 sorting: sortBy,
                 search,
-            });
-
-            const {headers, rows, chatIds} = mapChatsToExportRows(
-                chats.data.response,
-                endedChatsColumns,
-                selectedColumns,
-                t
-            );
-
-            const response = await apiDevEnded.post('chats/ended/download', {
-                headers, rows, chatIds, language: i18n.language
+                customerSupportIds: passedCustomerSupportIds,
             });
 
 
