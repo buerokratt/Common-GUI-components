@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.46] - 10.04.2026
+
+- Fixed CHAT_STATUS import
+
 ## [0.0.45] - 07.04.2026
 
 - Enhanced downloadChatHistory

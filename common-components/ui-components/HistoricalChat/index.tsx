@@ -5,7 +5,7 @@ import { MdOutlineModeEditOutline, MdOutlineSave } from "react-icons/md";
 
 import { Button, FormSelect, FormTextarea, Icon, Track } from "../";
 import { ReactComponent as BykLogoWhite } from "../../assets/logo-white.svg";
-import { CHAT_EVENTS, Chat as ChatType, BACKOFFICE_NAME } from "../../types/chat";
+import { CHAT_EVENTS, Chat as ChatType, BACKOFFICE_NAME, CHAT_STATUS } from "../../types/chat";
 import { Message } from "../../types/message";
 import ChatMessage from "./ChatMessage";
 import "./HistoricalChat.scss";
