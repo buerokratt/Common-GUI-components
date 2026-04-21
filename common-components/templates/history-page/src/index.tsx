@@ -106,6 +106,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         right: ['detail'],
     };
     const [totalPages, setTotalPages] = useState<number>(1);
+    const [totalCount, setTotalCount] = useState<number | null>(null);
     const [initialLoad, setInitialLoad] = useState<boolean>(true);
     const [filteredEndedChatsList, setFilteredEndedChatsList] = useState<
         ChatType[]
@@ -331,6 +332,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 });
             filterChatsList(res.data.response ?? []);
             setTotalPages(res?.data?.response[0]?.totalPages ?? 1);
+            setTotalCount(res?.data?.response[0]?.totalCount ?? null);
         },
     });
 
@@ -972,7 +974,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     return (
         <>
             {displayTitle && (
-                <h1>{t('chat.history.title')}</h1>
+                <h1>{t('chat.history.title')}{totalCount === null ? '' : ` (${totalCount.toLocaleString('et-EE')})`}</h1>
             )}
 
             {showDownload && (
@@ -1191,6 +1193,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                             }}
                             isClientSide={false}
                             pagesCount={totalPages}
+                            totalCountLabel={totalCount === null ? null : `${t('chat.history.title')} ${totalCount.toLocaleString('et-EE')}`}
                         />
                     </Card>
                 </div>

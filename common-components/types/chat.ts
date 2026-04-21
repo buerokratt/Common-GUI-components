@@ -91,6 +91,7 @@ export interface Chat {
     isFiveRatingScale?: string;
     allCsa?: string[];
     totalPages?: number;
+    totalCount?: number;
 }
 export interface GroupedChat {
     myChats: Chat[];

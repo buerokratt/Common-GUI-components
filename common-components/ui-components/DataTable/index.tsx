@@ -55,6 +55,7 @@ type DataTableProps = {
     pagesCount?: number;
     meta?: TableMeta<any>;
     selectedRow?: (row: Row<any>) => boolean;
+    totalCountLabel?: string | null;
 };
 
 type ColumnMeta = {
@@ -115,6 +116,7 @@ const DataTable: FC<DataTableProps> = ({
                                            pagesCount,
                                            meta,
                                            selectedRow,
+                                           totalCountLabel,
                                        }) => {
     const id = useId();
     const { t } = useTranslation();
@@ -408,6 +410,7 @@ const DataTable: FC<DataTableProps> = ({
                             </div>
                         )}
                     <div className="data-table__page-size">
+                        {totalCountLabel && <><span>{totalCountLabel}</span><span>|</span></>}
                         <label htmlFor={id}>{t('global.resultCount')}</label>
                         <select
                             id={id}
@@ -416,7 +419,7 @@ const DataTable: FC<DataTableProps> = ({
                                 table.setPageSize(Number(e.target.value));
                             }}
                         >
-                            {[10, 20, 30, 40, 50].map((pageSize) => (
+                            {[10, 20, 30, 40, 50, 100, 150, 200].map((pageSize) => (
                                 <option key={pageSize} value={pageSize}>
                                     {pageSize}
                                 </option>
