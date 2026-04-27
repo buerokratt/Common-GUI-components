@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.48] - 23.04.2026
+
+- Added chats preserve feature
+
 ## [0.0.47] - 21.04.2026
 
 - Added total chat counter under chat history

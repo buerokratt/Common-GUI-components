@@ -88,6 +88,7 @@ export interface Chat {
     nps?: number;
     userDisplayName?: string;
     istest?: boolean;
+    isPreserve?: boolean;
     isFiveRatingScale?: string;
     allCsa?: string[];
     totalPages?: number;

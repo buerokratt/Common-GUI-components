@@ -391,6 +391,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             columns.splice(5, 0, {label: t('global.test'), value: 'istest'});
         }
 
+        columns.splice(5, 0, {label: t('global.preserve'), value: 'isPreserve'});
+
         return columns;
     }, [t, showEmail, testMessageEnabled])
 
@@ -508,6 +510,31 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         },
     });
 
+    const chatPreserveChangeMutation = useMutation({
+        mutationFn: (data: {
+            chatId: string | number;
+            isPreserve: boolean;
+        }) => apiDev.post('chats/mark-preserve', data),
+        onSuccess: (res, {chatId, isPreserve}) => {
+            const updatedChatList = filteredEndedChatsList.map((chat) =>
+                chat.id === chatId ? {...chat, isPreserve: isPreserve} : chat
+            );
+            filterChatsList(updatedChatList);
+            toast?.open({
+                type: 'success',
+                title: t('global.notification'),
+                message: t('toast.success.updateSuccess'),
+            });
+        },
+        onError: (error: AxiosError) => {
+            toast?.open({
+                type: 'error',
+                title: t('global.notificationError'),
+                message: error.message,
+            });
+        },
+    });
+
     const columnHelper = createColumnHelper<ChatType>();
 
     const copyValueToClipboard = async (value: string) => {
@@ -590,6 +617,19 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
       }
     };
 
+    const updateChatPreserve = function (chatId: string, isPreserve: boolean) {
+      setFilteredEndedChatsList((prevChats) =>
+        prevChats.map((chat) => (chat.id === chatId ? ({ ...chat, isPreserve: isPreserve } as ChatType) : chat))
+      );
+
+      if (selectedChat?.id === chatId) {
+        setSelectedChat({
+          ...selectedChat,
+          isPreserve: isPreserve,
+        } as ChatType);
+      }
+    };
+
     const markConversationAsTest = (props: any) => {
       const chatId = props.row.original.id;
       const newIsTestValue = props.getValue();
@@ -608,6 +648,29 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             const isTest = e.target.checked;
             updateChatTest(chatId, isTest);
             chatTestChangeMutation.mutate({ chatId, isTest });
+          }}
+        />
+      );
+    };
+
+    const markConversationAsPreserve = (props: any) => {
+      const chatId = props.row.original.id;
+      const newIsPreserveValue = props.getValue();
+      return (
+        <FormCheckbox
+          checked={newIsPreserveValue}
+          label={""}
+          hideLabel
+          emptyItem={true}
+          name="active"
+          item={{
+            label: "",
+            value: "active",
+          }}
+          onChange={(e) => {
+            const isPreserve = e.target.checked;
+            updateChatPreserve(chatId, isPreserve);
+            chatPreserveChangeMutation.mutate({ chatId, isPreserve });
           }}
         />
       );
@@ -765,6 +828,12 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             }));
         }
 
+        columns.splice(4, 0, columnHelper.accessor('isPreserve', {
+            id: 'isPreserve',
+            header: t('global.preserve') ?? '',
+            cell: markConversationAsPreserve
+        }));
+
         return columns;
     }, [t, showEmail, testMessageEnabled])
 
@@ -810,6 +879,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 return 'id';
             case 'istest':
                 return t('global.test') ?? ''
+            case 'isPreserve':
+                return t('global.preserve') ?? ''
             default:
                 return '';
         }
