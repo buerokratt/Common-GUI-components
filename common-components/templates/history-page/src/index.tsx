@@ -1024,15 +1024,15 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 customerSupportIds: passedCustomerSupportIds,
             });
 
+            const downloadData = response.data.data ?? response.data;
 
             await saveFile(
-                response.data.base64String,
+                downloadData.url,
                 'history.xlsx',
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             );
 
         } catch (error) {
-            console.error('Error getting CSV file:', error);
+            console.error('Error downloading chat history file:', error);
         } finally {
             setLoading(false);
         }
