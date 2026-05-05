@@ -1038,18 +1038,26 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
     return (
         <>
-            {displayTitle && (
-                <h1>{t('chat.history.title')}{totalCount === null ? '' : ` (${totalCount.toLocaleString('et-EE')})`}</h1>
-            )}
+            <div className="header-container">
+                {displayTitle && (
+                    <h1>{t('chat.history.title')}{totalCount === null ? '' : ` (${totalCount.toLocaleString('et-EE')})`}</h1>
+                )}
 
-            {showDownload && (
-                <div>
-                    <Button appearance={"primary"} onClick={downloadChatHistory}>
-                        {loading && <CgSpinner className="spinner"/>}
-                        {!loading && t('files.download_xlsx')}
-                    </Button>
-                </div>
-            )}
+                {showDownload && (
+                    <div>
+                        <Button
+                            type="button"
+                            appearance={"secondary"}
+                            size="s"
+                            style={{ marginTop: '4px' }}
+                            onClick={downloadChatHistory}
+                        >
+                            {loading && <CgSpinner className="spinner" />}
+                            {!loading && t('files.download_xlsx')}
+                        </Button>
+                    </div>
+                )}
+            </div>
 
             <Card>
                 <Track gap={16}>

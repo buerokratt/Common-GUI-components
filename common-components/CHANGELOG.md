@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.51] - 05.05.2026
+
+- History page header alignment
+
 ## [0.0.50] - 04.05.2026
 
 - Added authenticated person column
