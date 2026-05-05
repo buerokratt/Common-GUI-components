@@ -89,3 +89,11 @@
 .spinner {
   height: 24px;
 }
+
+.history-content {
+  &--loading {
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+  }
+}

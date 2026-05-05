@@ -126,6 +126,8 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const showTest = envVal === undefined ? true : envVal.toLowerCase() === 'true';
     const [loading, setLoading] = useState(false);
     const abortRef = useRef<AbortController | null>(null);
+    const loadingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const timeoutAbortRef = useRef(false);
 
     const parseDateParam = (dateString: string | null) => {
       if (!dateString) return new Date();
@@ -334,7 +336,31 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             setTotalPages(res?.data?.response[0]?.totalPages ?? 1);
             setTotalCount(res?.data?.response[0]?.totalCount ?? null);
         },
+        onError: (error: AxiosError) => {
+            if (error.code === 'ERR_CANCELED' && !timeoutAbortRef.current) return;
+            timeoutAbortRef.current = false;
+            toast?.open({
+                type: 'error',
+                title: t('global.notificationError'),
+                message: 'Veateade',
+            });
+        },
     });
+
+    useEffect(() => {
+        if (getAllEndedChats.isPending) {
+            loadingTimeoutRef.current = setTimeout(() => {
+                timeoutAbortRef.current = true;
+                abortRef.current?.abort();
+            }, 10000);
+        } else if (loadingTimeoutRef.current) {
+                clearTimeout(loadingTimeoutRef.current);
+                loadingTimeoutRef.current = null;
+            }
+        return () => {
+            if (loadingTimeoutRef.current) clearTimeout(loadingTimeoutRef.current);
+        };
+    }, [getAllEndedChats.isPending]);
 
     const getChatById = useMutation({
         mutationFn: () =>
@@ -1059,6 +1085,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 )}
             </div>
 
+            <div className={`history-content${getAllEndedChats.isPending ? ' history-content--loading' : ''}`}>
             <Card>
                 <Track gap={16}>
                     {displaySearchBar && (
@@ -1432,6 +1459,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                         </div>
                     </>
                 )}
+            </div>
             </div>
 
             {statusChangeModal && (
