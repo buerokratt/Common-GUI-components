@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.52] - 05.05.2026
+
+- Updated loading logic
+
 ## [0.0.51] - 05.05.2026
 
 - History page header alignment
