@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.50] - 04.05.2026
+
+- Added authenticated person column
+
 ## [0.0.49] - 29.04.2026
 
 - Fixed chat history XLSX download to use the S3 signed URL returned by the API instead of the previous base64 payload.

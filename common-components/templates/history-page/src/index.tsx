@@ -739,21 +739,15 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 }
             ),
             columnHelper.accessor(
-                (row) => `${row.endUserFirstName} ${row.endUserLastName}`,
+                (row) => {
+                    const hasData = row.endUserFirstName || row.endUserLastName || row.endUserId || row.contactsMessage;
+                    return hasData ? t('global.yes') : '';
+                },
                 {
-                    id: `endUserName`,
-                    header: t('global.name') ?? '',
+                    id: 'authenticatedPerson',
+                    header: t('chat.history.authenticatedPerson') ?? '',
                 }
             ),
-            columnHelper.accessor('endUserId', {
-                id: 'endUserId',
-                header: t('global.idCode') ?? '',
-            }),
-            columnHelper.accessor('contactsMessage', {
-                id: 'contactsMessage',
-                header: t('chat.history.contact') ?? '',
-                cell: (props) => (props.getValue() ? t('global.yes') : t('global.no')),
-            }),
             columnHelper.accessor('comment', {
                 id: 'comment',
                 header: t('chat.history.comment') ?? '',
