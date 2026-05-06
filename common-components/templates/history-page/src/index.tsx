@@ -86,7 +86,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const passedStartDate = delegatedStartDate ?? params.get("start");
     const passedEndDate = delegatedEndDate ?? params.get("end");
     const skipNextSelectedColumnsEffect = useRef(false);
-    const passedCustomerSupportIds = params.getAll('customerSupportIds');
     const [search, setSearch] = useState('');
     const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
     const [searchParams, setSearchParams] = useSearchParams();
@@ -114,7 +113,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
     const [messagesTrigger, setMessagesTrigger] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState<string[]>([]);
-    const [customerSupportAgents, setCustomerSupportAgents] = useState<any[]>([]);
     const [counterKey, setCounterKey] = useState<number>(0)
 
     const useStore = userDomains;
@@ -151,7 +149,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         getAllEndedChats.mutate({
             startDate: formatISO(startOfDay(new Date(startDate))),
             endDate: formatISO(endOfDay(new Date(endDate))),
-            customerSupportIds: passedCustomerSupportIds,
             pagination,
             sorting,
             search,
@@ -198,7 +195,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 getAllEndedChats.mutate({
                     startDate: hasStart ? unifyDateFromat(delegatedStartDate) : formatISO(startOfDay(new Date(startDate))),
                     endDate: hasEnd ? unifyDateFromat(delegatedEndDate) : formatISO(endOfDay(new Date(endDate))),
-                    customerSupportIds: passedCustomerSupportIds,
                     pagination,
                     sorting,
                     search,
@@ -235,7 +231,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 getAllEndedChats.mutate({
                     startDate: formatISO(startOfDay(new Date(startDate))),
                     endDate: formatISO(endOfDay(new Date(endDate))),
-                    customerSupportIds: passedCustomerSupportIds,
                     pagination: updatedPagination,
                     sorting,
                     search,
@@ -264,17 +259,12 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             getAllEndedChats.mutate({
                 startDate: formatISO(startOfDay(new Date(startDate))),
                 endDate: formatISO(endOfDay(new Date(endDate))),
-                customerSupportIds: passedCustomerSupportIds,
                 pagination,
                 sorting,
                 search,
             });
         }
     }, [selectedColumns, currentDomains]);
-
-    useEffect(() => {
-        listCustomerSupportAgents.mutate();
-    }, []);
 
     const updatePagePreferences = useMutation({
         mutationFn: (data: {
@@ -294,7 +284,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         mutationFn: (data: {
             startDate: string;
             endDate: string;
-            customerSupportIds: string[];
             pagination: PaginationState;
             sorting: SortingState;
             search: string;
@@ -309,7 +298,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             }
 
             return apiDevEnded.post('agents/chats/ended', {
-                customerSupportIds: data.customerSupportIds,
                 startDate: formatISO(startOfDay(new Date(data.startDate))),
                 endDate: formatISO(endOfDay(new Date(data.endDate))),
                 urls: getDomainsArray(currentDomains),
@@ -370,26 +358,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         onSuccess: (res: any) => {
             setSelectedChat(res.data.response);
             setChatState(res.data.response);
-        },
-    });
-
-    const listCustomerSupportAgents = useMutation({
-        mutationFn: () =>
-            apiDev.post('accounts/customer-support-agents', {
-                page: 0,
-                page_size: 99999,
-                sorting: 'name asc',
-                show_active_only: false,
-                roles: ['ROLE_CUSTOMER_SUPPORT_AGENT'],
-            }),
-        onSuccess: (res: any) => {
-            setCustomerSupportAgents([
-                {label: 'Bürokratt', value: 'chatbot'},
-                ...res.data.response.map((item) => ({
-                    label: [item.firstName, item.lastName].join(' ').trim(),
-                    value: item.idCode,
-                })),
-            ]);
         },
     });
 
@@ -456,7 +424,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             getAllEndedChats.mutate({
                 startDate: formatISO(startOfDay(new Date(startDate))),
                 endDate: formatISO(endOfDay(new Date(endDate))),
-                customerSupportIds: passedCustomerSupportIds,
                 pagination,
                 sorting,
                 search,
@@ -1041,7 +1008,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 urls: getDomainsArray(currentDomains),
                 sorting: sortBy,
                 search,
-                customerSupportIds: passedCustomerSupportIds,
             });
 
             const downloadData = response.data.data ?? response.data;
@@ -1133,7 +1099,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                         getAllEndedChats.mutate({
                                                             startDate: start,
                                                             endDate: formatISO(endOfDay(new Date(endDate))),
-                                                            customerSupportIds: passedCustomerSupportIds,
                                                             pagination: resetPagination,
                                                             sorting,
                                                             search,
@@ -1168,7 +1133,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                         getAllEndedChats.mutate({
                                                             startDate: formatISO(startOfDay(new Date(startDate))),
                                                             endDate: end,
-                                                            customerSupportIds: passedCustomerSupportIds,
                                                             pagination: resetPagination,
                                                             sorting,
                                                             search,
@@ -1197,45 +1161,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                     page_results: pagination.pageSize,
                                     selected_columns: columns
                                 })
-                            }}
-                        />
-                        <FormMultiselect
-                            name="agent"
-                            label={t('')}
-                            placeholder={t('chat.history.chosenCsa')}
-                            options={customerSupportAgents}
-                            selectedOptions={customerSupportAgents.filter((item) =>
-                                passedCustomerSupportIds.includes(item.value)
-                            )}
-                            onSelectionChange={(selection) => {
-                                setSearchParams((params) => {
-                                    params.delete('customerSupportIds');
-                                    params.set('page', '1');
-                                    selection?.forEach((s) => {
-                                      params.append("customerSupportIds", s.value);
-                                      if (s.value === "chatbot") params.append("customerSupportIds", "-");
-                                      return params;
-                                    });
-                                    return params;
-                                });
-
-                                setPagination({pageIndex: 0, pageSize: pagination.pageSize});
-
-                                const customerSupportIds =
-                                  selection?.reduce((acc, s) => {
-                                    acc.push(s.value);
-                                    if (s.value === "chatbot") acc.push("-");
-                                    return acc;
-                                  }, []) || [];
-
-                                getAllEndedChats.mutate({
-                                    startDate,
-                                    endDate,
-                                    customerSupportIds: customerSupportIds,
-                                    pagination: {pageIndex: 0, pageSize: pagination.pageSize},
-                                    sorting,
-                                    search,
-                                });
                             }}
                         />
                     </Track>
@@ -1274,7 +1199,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 getAllEndedChats.mutate({
                                     startDate: formatISO(startOfDay(new Date(startDate))),
                                     endDate: formatISO(endOfDay(new Date(endDate))),
-                                    customerSupportIds: passedCustomerSupportIds,
                                     pagination: state,
                                     sorting,
                                     search,
@@ -1285,7 +1209,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 getAllEndedChats.mutate({
                                     startDate: formatISO(startOfDay(new Date(startDate))),
                                     endDate: formatISO(endOfDay(new Date(endDate))),
-                                    customerSupportIds: passedCustomerSupportIds,
                                     pagination,
                                     sorting: state,
                                     search,
