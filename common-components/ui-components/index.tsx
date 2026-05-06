@@ -24,6 +24,7 @@ import Drawer from './Drawer';
 import HistoricalChat from './HistoricalChat';
 import Dialog from './Dialog';
 import Label from './Label';
+import ClearFiltersButton from './ClearFiltersButton';
 
 export {
     Button,
@@ -49,5 +50,6 @@ export {
     HistoricalChat,
     Dialog,
     Toast,
-    Label
+    Label,
+    ClearFiltersButton,
 };

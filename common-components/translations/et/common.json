@@ -45,7 +45,8 @@
     "today": "Täna",
     "forward": "Suuna",
     "chosen": "Valitud",
-    "read": "Loetud"
+    "read": "Loetud",
+    "clearFilters": "Tühjenda filtrid"
   },
   "sorting": {
     "des": "kahanevalt",
@@ -175,7 +176,8 @@
       "statusAdder": "Staatuse lisaja",
       "statusAddedDate": "Staatuse lisamise kuupäev",
       "chosenCsa": "Valitud nõustaja(d)",
-      "chosenColumn": "Valitud tulba(d)"
+      "chosenColumn": "Valitud tulba(d)",
+      "chooseAll": "Vali kõik"
     },
     "plainEvents": {
       "answered": "Vastatud",

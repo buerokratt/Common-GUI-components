@@ -10,6 +10,7 @@ type CardProps = {
     isHeaderLight?: boolean;
     isBodyDivided?: boolean;
     isScrollable?: boolean;
+    style?: React.CSSProperties;
 };
 
 const Card: FC<PropsWithChildren<CardProps>> = ({
@@ -19,10 +20,11 @@ const Card: FC<PropsWithChildren<CardProps>> = ({
                                                     isHeaderLight,
                                                     isBodyDivided,
                                                     isScrollable = false,
+                                                    style,
                                                     children,
                                                 }) => {
     return (
-        <div className={clsx('card', { 'card--borderless': borderless, 'card--scrollable': isScrollable })}>
+        <div className={clsx('card', { 'card--borderless': borderless, 'card--scrollable': isScrollable })} style={style}>
             {header && (
                 <div className={`card__header ${isHeaderLight ? 'white' : ''}`}>
                     {header}

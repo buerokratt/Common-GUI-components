@@ -45,7 +45,8 @@
     "today": "Today",
     "forward": "Forward",
     "chosen": "Chosen",
-    "read": "Read"
+    "read": "Read",
+    "clearFilters": "Clear filters"
   },
   "sorting": {
     "des": "descending",
@@ -175,7 +176,8 @@
       "statusAdder": "Status adder",
       "statusAddedDate": "Status added date",
       "chosenCsa": "Chosen csa(s)",
-      "chosenColumn": "Chosen column(s)"
+      "chosenColumn": "Chosen column(s)",
+      "chooseAll": "Choose all"
     },
     "plainEvents": {
       "answered": "Answered",

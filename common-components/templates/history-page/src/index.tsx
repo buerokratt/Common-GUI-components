@@ -1,16 +1,17 @@
-import React, {FC, PropsWithChildren, useEffect, useMemo, useRef, useState} from 'react';
+import {FC, PropsWithChildren, useEffect, useMemo, useRef, useState} from 'react';
 import {useTranslation} from 'react-i18next';
 import {useMutation} from '@tanstack/react-query';
 import {ColumnPinningState, createColumnHelper, PaginationState, SortingState,} from '@tanstack/react-table';
 import {endOfDay, format, formatISO, startOfDay} from "date-fns";
 import {AxiosError} from 'axios';
 import './History.scss';
-import {MdOutlineRemoveRedEye} from 'react-icons/md';
+import {MdOutlineRemoveRedEye } from 'react-icons/md';
 import {CgSpinner} from 'react-icons/cg';
 
 import {
     Button,
     Card,
+    ClearFiltersButton,
     DataTable,
     Dialog,
     Drawer,
@@ -61,6 +62,8 @@ type ExportResult = {
     chatIds: string[];
 };
 
+const ALL_COLUMNS_VALUE = '__all__';
+
 const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                                               user,
                                                               userDomains,
@@ -86,7 +89,6 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const passedStartDate = delegatedStartDate ?? params.get("start");
     const passedEndDate = delegatedEndDate ?? params.get("end");
     const skipNextSelectedColumnsEffect = useRef(false);
-    const [search, setSearch] = useState('');
     const [selectedChat, setSelectedChat] = useState<ChatType | null>(null);
     const [searchParams, setSearchParams] = useSearchParams();
     const [statusChangeModal, setStatusChangeModal] = useState<string | null>(
@@ -135,13 +137,16 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     const { control, setValue, watch } = useForm<{
       startDate: Date | string;
       endDate: Date | string;
+      search: string;
     }>({
       defaultValues: {
         startDate: passedStartDate ? parseDateParam(passedStartDate) : startOfDay(new Date()),
         endDate: passedEndDate ? parseDateParam(passedEndDate) : endOfDay(new Date()),
+        search: '',
       },
     });
 
+    const search = watch('search');
     const startDate = watch('startDate');
     const endDate = watch('endDate');
 
@@ -225,7 +230,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 }
 
                 skipNextSelectedColumnsEffect.current = true;
-                setSelectedColumns(newSelectedColumns);
+                setSelectedColumns(getUiSelectedColumns(newSelectedColumns));
                 setCounterKey(prev => prev + 1);
 
                 getAllEndedChats.mutate({
@@ -361,7 +366,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         },
     });
 
-    const visibleColumnOptions = useMemo(() => {
+    const realColumnOptions: {readonly label: string; readonly value: string}[] = useMemo(() => {
         const columns = [
             {label: t('chat.history.startTime'), value: 'created'},
             {label: t('chat.history.endTime'), value: 'ended'},
@@ -389,6 +394,49 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
         return columns;
     }, [t, showEmail, testMessageEnabled])
+
+    const visibleColumnOptions = useMemo(() => [
+        {label: t('chat.history.chooseAll'), value: ALL_COLUMNS_VALUE},
+        ...realColumnOptions,
+    ], [t, realColumnOptions]);
+
+    const getRealSelectedColumns = (columns: string[]) =>
+        columns.filter((column) => column !== ALL_COLUMNS_VALUE);
+
+    const getAllColumnValues = () => realColumnOptions.map((option) => option.value);
+
+    const areAllColumnsSelected = (columns: string[]) => {
+        const realSelectedColumns = getRealSelectedColumns(columns);
+        const allColumnValues = getAllColumnValues();
+
+        return allColumnValues.length > 0 &&
+            allColumnValues.every((column) => realSelectedColumns.includes(column));
+    };
+
+    const getUiSelectedColumns = (columns: string[]) => {
+        const realSelectedColumns = getRealSelectedColumns(columns);
+
+        if (areAllColumnsSelected(realSelectedColumns)) {
+            return [ALL_COLUMNS_VALUE, ...getAllColumnValues()];
+        }
+
+        return realSelectedColumns;
+    };
+
+    const normalizeSelectedColumns = (selection: string[]) => {
+        const currentAllSelected = selectedColumns.includes(ALL_COLUMNS_VALUE) || areAllColumnsSelected(selectedColumns);
+        const nextAllSelected = selection.includes(ALL_COLUMNS_VALUE);
+
+        if (nextAllSelected && !currentAllSelected) {
+            return [ALL_COLUMNS_VALUE, ...getAllColumnValues()];
+        }
+
+        if (!nextAllSelected && currentAllSelected) {
+            return [];
+        }
+
+        return getUiSelectedColumns(selection);
+    };
 
     const chatStatusChangeMutation = useMutation({
         mutationFn: async (data: { chatId: string | number; event: string }) => {
@@ -891,9 +939,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     };
 
     const getFilteredColumns = () => {
-        if (selectedColumns.length === 0) return endedChatsColumns;
+        const realSelectedColumns = getRealSelectedColumns(selectedColumns);
+
+        if (realSelectedColumns.length === 0) return endedChatsColumns;
         return endedChatsColumns.filter((c) =>
-            ['detail', 'forward', ...selectedColumns].includes(c.id ?? '')
+            ['detail', 'forward', ...realSelectedColumns].includes(c.id ?? '')
         );
     };
 
@@ -920,10 +970,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         selectedColumns: string[],
         t: (key: string) => string
     ): ExportResult => {
+        const realSelectedColumns = getRealSelectedColumns(selectedColumns);
         const activeColumns =
-            selectedColumns.length > 0
+            realSelectedColumns.length > 0
                 ? allColumns.filter(
-                    (col) => col.id && col.id !== 'detail' && selectedColumns.includes(col.id)
+                    (col) => col.id && col.id !== 'detail' && realSelectedColumns.includes(col.id)
                 )
                 : allColumns.filter((col) => col.id && col.id !== 'detail');
 
@@ -993,9 +1044,10 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 sortBy = `${sorting[0].id} ${sortType}`;
             }
 
-            const { headers } = mapChatsToExportRows([], endedChatsColumns, selectedColumns, t);
-            const activeColumns = selectedColumns.length > 0
-                ? endedChatsColumns.filter((col) => col.id && col.id !== 'detail' && selectedColumns.includes(col.id))
+            const realSelectedColumns = getRealSelectedColumns(selectedColumns);
+            const { headers } = mapChatsToExportRows([], endedChatsColumns, realSelectedColumns, t);
+            const activeColumns = realSelectedColumns.length > 0
+                ? endedChatsColumns.filter((col) => col.id && col.id !== 'detail' && realSelectedColumns.includes(col.id))
                 : endedChatsColumns.filter((col) => col.id && col.id !== 'detail');
             const columnIds = activeColumns.map((col) => col.id!);
 
@@ -1026,6 +1078,21 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
 
     const endUserFullName = getUserName();
 
+    const isClearFiltersVisible = useMemo(()=> {
+        return search.length > 0 || selectedColumns.length > 0;
+    }, [search, selectedColumns]);
+
+    const onClearFilersClick = () => {
+        const clearedColumns: string[] = [];
+        setSelectedColumns(clearedColumns);
+        setCounterKey(0);
+        setValue('search', '');
+        updatePagePreferences.mutate({
+            page_results: pagination.pageSize,
+            selected_columns: clearedColumns
+        });
+    };
+
     if (!filteredEndedChatsList) return <>Loading... {{filteredEndedChatsList}} something is wrong </>;
 
     return (
@@ -1052,27 +1119,29 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             </div>
 
             <div className={`history-content${getAllEndedChats.isPending ? ' history-content--loading' : ''}`}>
-            <Card>
+            <Card style={{marginBottom: '16px'}}>
                 <Track gap={16}>
                     {displaySearchBar && (
-                        <FormInput
-                            className="input-wrapper"
-                            label={t('chat.history.searchChats')}
-                            hideLabel
-                            name="searchChats"
-                            placeholder={t('chat.history.searchChats') + '...'}
-                            onChange={(e) => {
-                                setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
-                                setSearchParams((params) => {
-                                  params.set("page", "1");
-                                  return params;
-                                });
-                                setSearch(e.target.value);
-                                debouncedGetAllEnded(e.target.value);
-                            }}
-                        />)}
-
-                    <Track style={{width: '100%'}} gap={16}>
+                        <Controller name="search" control={control} render={({ field }) => {
+                            return <FormInput
+                                label={t('chat.history.searchChats')}
+                                hideLabel
+                                name="searchChats"
+                                value={field.value}
+                                placeholder={t('chat.history.searchChats') + '...'}
+                                onChange={(e) => {
+                                    setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
+                                    setSearchParams((params) => {
+                                        params.set("page", "1");
+                                        return params;
+                                    });
+                                    field.onChange(e.target.value);
+                                    debouncedGetAllEnded(e.target.value);
+                                }}
+                            />
+                        }} />
+                    )}
+                    <Track gap={16}>
                         {displayDateFilter && (
                             <>
                                 <Track gap={10}>
@@ -1145,6 +1214,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 </Track>
                             </>
                         )}
+                        <Track style={{width: '240px'}}>
                         <FormMultiselect
                             key={counterKey}
                             name="visibleColumns"
@@ -1154,15 +1224,18 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                             selectedOptions={visibleColumnOptions.filter((o) =>
                                 selectedColumns.includes(o.value)
                             )}
+                            selectedOptionsCount={getRealSelectedColumns(selectedColumns).length}
                             onSelectionChange={(selection) => {
-                                const columns = selection?.map((s) => s.value) ?? [];
+                                const columns = normalizeSelectedColumns(selection?.map((s) => s.value) ?? []);
                                 setSelectedColumns(columns);
+                                setCounterKey(prev => prev + 1);
                                 updatePagePreferences.mutate({
                                     page_results: pagination.pageSize,
-                                    selected_columns: columns
+                                    selected_columns: getRealSelectedColumns(columns)
                                 })
                             }}
-                        />
+                            />
+                        </Track>
                     </Track>
                 </Track>
             </Card>
@@ -1174,6 +1247,11 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     </Button>
                 </div>)
             }
+            {isClearFiltersVisible && (
+                <Track justify="between" style={{ marginBottom: '16px' }}>
+                    <ClearFiltersButton style={{ marginLeft: 'auto' }} onClick={onClearFilersClick} />
+                </Track>
+            )}
             <div className="card-drawer-container" style={{height: '100%', overflow: 'auto'}}>
                 <div className="card-wrapper">
                     <Card>
@@ -1194,7 +1272,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 setPagination(state);
                                 updatePagePreferences.mutate({
                                     page_results: state.pageSize,
-                                    selected_columns: selectedColumns
+                                    selected_columns: getRealSelectedColumns(selectedColumns)
                                 });
                                 getAllEndedChats.mutate({
                                     startDate: formatISO(startOfDay(new Date(startDate))),
