@@ -4,6 +4,13 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.53] - 06.05.2026
+
+- Removed the Chosen CSA filter from chat history.
+- Added Clear filters action for chat history filters.
+- Added Choose all / Vali kõik option to the chosen columns filter.
+- Persisted selected chat history columns in user preferences.
+
 ## [0.0.52] - 05.05.2026
 
 - Updated loading logic

@@ -16,6 +16,7 @@ type FormMultiselectProps = SelectHTMLAttributes<HTMLSelectElement> & {
     hideLabel?: boolean;
     options: SelectOption[];
     selectedOptions?: SelectOption[];
+    selectedOptionsCount?: number;
     onSelectionChange?: (selection: SelectOption[] | null) => void;
 };
 
@@ -28,6 +29,7 @@ const FormMultiselect: FC<FormMultiselectProps> = (
         placeholder,
         defaultValue,
         selectedOptions,
+        selectedOptionsCount,
         onSelectionChange,
         ...rest
     },
@@ -84,13 +86,14 @@ const FormMultiselect: FC<FormMultiselectProps> = (
     );
 
     const placeholderValue = placeholder || t('global.choose');
+    const displaySelectedCount = selectedOptionsCount ?? selectedItems.length;
 
     return (
         <div className={selectClasses} style={rest.style}>
             {label && !hideLabel && <label htmlFor={id} className='select__label' {...getLabelProps()}>{label}</label>}
             <div className='select__wrapper'>
                 <div className='select__trigger' {...getToggleButtonProps()}>
-                    {selectedItems.length > 0 ? `${placeholder ?? t('global.chosen')} (${selectedItems.length})` : placeholderValue}
+                    {selectedItems.length > 0 ? `${placeholder ?? t('global.chosen')} (${displaySelectedCount})` : placeholderValue}
                     <Icon label='Dropdown icon' size='medium' icon={<MdArrowDropDown color='#5D6071' />} />
                 </div>
 
