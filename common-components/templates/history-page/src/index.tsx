@@ -1048,7 +1048,13 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 : endedChatsColumns.filter((col) => col.id && col.id !== 'detail');
             const columnIds = activeColumns.map((col) => col.id!);
 
-            const response = await apiDevEnded.post('chats/ended/download', {
+            const response = await apiDevEnded.post<{
+                readonly response: {
+                    readonly data: {
+                        readonly url: string;
+                    };
+                };
+            }>('chats/ended/download', {
                 headers,
                 columnIds,
                 language: i18n.language,
@@ -1058,8 +1064,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 sorting: sortBy,
                 search,
             });
-
-            const downloadData = response.data.data ?? response.data;
+            const downloadData = response.data.response.data;
 
             await saveFile(
                 downloadData.url,
