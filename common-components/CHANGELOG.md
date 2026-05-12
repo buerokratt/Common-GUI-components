@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.55] - 12.05.2026
+
+- Fixed chat history download response typing
+
 ## [0.0.54] - 07.05.2026
 
 - Remove authenticated person fields for filtering
