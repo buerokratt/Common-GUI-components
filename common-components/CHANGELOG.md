@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.56] - 13.05.2026
+
+- Fixed file downloads to run inside an iframe to avoid parent app navigation and beforeunload logout handling for cross-origin signed URLs.
+
 ## [0.0.55] - 12.05.2026
 
 - Fixed chat history download response typing
