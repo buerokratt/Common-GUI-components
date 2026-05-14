@@ -371,6 +371,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             {label: t('chat.history.startTime'), value: 'created'},
             {label: t('chat.history.endTime'), value: 'ended'},
             {label: t('chat.history.csaName'), value: 'customerSupportFullName'},
+            {label: t('chat.history.authenticatedPerson'), value: 'authenticatedPerson'},
             {label: t('chat.history.comment'), value: 'comment'},
             {label: t('chat.history.rating'), value: 'feedbackRating'},
             {label: t('chat.history.feedback'), value: 'feedbackText'},
