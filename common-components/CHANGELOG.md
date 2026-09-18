@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.67] 18.09.2026
+
+- Fixed columns large value column ui
+
 ## [0.0.66] 22.07.2026
 
 - Fixed analytics dropdown on domain change
