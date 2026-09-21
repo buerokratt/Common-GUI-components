@@ -761,6 +761,22 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         );
     };
 
+    const truncatedTextView = (props: any) => {
+        const value = props.getValue() ?? '';
+        if (!value) return null;
+
+        const isTruncated = value.length > 30;
+        const displayValue = isTruncated ? `${value.slice(0, 30)}...` : value;
+
+        return isTruncated ? (
+            <Tooltip content={value}>
+                <span>{displayValue}</span>
+            </Tooltip>
+        ) : (
+            <span>{value}</span>
+        );
+    };
+
     const wwwView = (props: any) => {
         const value = props.getValue() ?? '';
         const isTruncated = value.length > 40;
@@ -1284,6 +1300,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                             />
                         );
                     },
+                    cell: truncatedTextView,
                     sortDescFirst: false,
                 }
             ),
@@ -1527,6 +1544,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 isApplyBtnVisible
                             />
                         ),
+                        cell: truncatedTextView,
                         enableSorting: true,
                     }
                 ),
@@ -1556,6 +1574,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 isApplyBtnVisible
                             />
                         ),
+                        cell: truncatedTextView,
                         enableSorting: true,
                     }
                 ),
@@ -1585,6 +1604,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                                 isApplyBtnVisible
                             />
                         ),
+                        cell: truncatedTextView,
                         enableSorting: true,
                     }
                 ),
