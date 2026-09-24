@@ -148,19 +148,12 @@ const loadFeedbackConfig = async (): Promise<FeedbackConfig> => {
 const isFiveRatingScaleEnabled = (value?: string | boolean | null) =>
     value === true || value === 'true';
 
-const formatChatAnalysisCell = (
-    value: string[] | null | undefined,
-    selectionEmptiedLabel: string
-) => {
-    if (!Array.isArray(value) || value.length === 0) {
+const formatChatAnalysisCell = (value: string[] | null | undefined) => {
+    if (!Array.isArray(value)) {
         return '';
     }
 
-    if (value.length === 1 && value[0] === '') {
-        return selectionEmptiedLabel;
-    }
-
-    return value.join(', ');
+    return value.filter(Boolean).join(', ');
 };
 
 // Boolean -> truthy values before falsy
@@ -1519,10 +1512,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
             }),
             ...isChatAnalysisEnabled ? [
                 columnHelper.accessor(
-                    (row) => formatChatAnalysisCell(
-                        row.theme,
-                        t('chat.quality.selectionEmptied')
-                    ),
+                    (row) => formatChatAnalysisCell(row.theme),
                     {
                         id: 'theme',
                         header: () => (
@@ -1549,10 +1539,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     }
                 ),
                 columnHelper.accessor(
-                    (row) => formatChatAnalysisCell(
-                        row.responseQuality,
-                        t('chat.quality.selectionEmptied')
-                    ),
+                    (row) => formatChatAnalysisCell(row.responseQuality),
                     {
                         id: 'responseQuality',
                         header: () => (
@@ -1579,10 +1566,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                     }
                 ),
                 columnHelper.accessor(
-                    (row) => formatChatAnalysisCell(
-                        row.followUpStatus,
-                        t('chat.quality.selectionEmptied')
-                    ),
+                    (row) => formatChatAnalysisCell(row.followUpStatus),
                     {
                         id: 'followUpStatus',
                         header: () => (
