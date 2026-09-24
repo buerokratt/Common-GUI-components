@@ -31,25 +31,25 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick, toastConte
     return match ?? { title: content, payload: content };
   }, [message.content, previousButtons]);
 
-  const handleContextMenu = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const content = message.content ?? "";
-    navigator.clipboard
-      .writeText(content)
-      .then(() => {
-        toast?.open({
-          type: "success",
-          title: t("global.notification"),
-          message: t("toast.copied"),
-        });
-      })
-      .catch((err) => {
-        toast?.open({
-          type: "error",
-          title: t("global.notification"),
-          message: err?.message,
-        });
+  const handleClick = async () => {
+    onMessageClick?.(message);
+
+    if (window.getSelection()?.toString()) return;
+
+    try {
+      await navigator.clipboard.writeText(message.content ?? "");
+      toast?.open({
+        type: "success",
+        title: t("global.notification"),
+        message: t("toast.success.copied"),
       });
+    } catch (err) {
+      toast?.open({
+        type: "error",
+        title: t("global.notificationError"),
+        message: (err as Error)?.message,
+      });
+    }
   };
 
   return (
@@ -60,8 +60,7 @@ const ChatMessage: FC<ChatMessageProps> = ({ message, onMessageClick, toastConte
         ) : (
           <button
             className="historical-chat__message-text"
-            onClick={onMessageClick ? () => onMessageClick(message) : undefined}
-            onContextMenu={handleContextMenu}
+            onClick={handleClick}
           >
             <Markdownify message={message.content ?? ""} sanitizeLinks={message.authorRole === "end-user"} />
           </button>
