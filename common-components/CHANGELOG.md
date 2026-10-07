@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.69] 24.09.2026
+
+- Added message copy
+
 ## [0.0.68] 24.09.2026
 
 - Left cleared selections blank in the table columns
