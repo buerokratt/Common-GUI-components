@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.1.57] - 21-10-2026
+
+- Fixed truncated and malformed toast messages
+
 ## [0.0.69] 24.09.2026
 
 - Added message copy
