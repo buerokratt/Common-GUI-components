@@ -4,7 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
-## [0.1.57] - 21-10-2026
+## [0.0.71] - 26-10-2026
+
+- Added missing link icons
+
+## [0.0.70] - 21-10-2026
 
 - Fixed truncated and malformed toast messages
 
