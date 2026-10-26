@@ -4,6 +4,11 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.72] - 26-10-2026
+
+- Enhanced authenticated check
+- Fixed long indented lines in pasted text are cut off issue
+
 ## [0.0.71] - 26-10-2026
 
 - Added missing link icons
