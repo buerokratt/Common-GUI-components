@@ -1298,10 +1298,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
                 }
             ),
             columnHelper.accessor(
-                (row) => {
-                    const hasData = row.endUserFirstName || row.endUserLastName || row.endUserId || row.contactsMessage;
-                    return hasData ? t('global.yes') : '';
-                },
+                (row) => (row.endUserId?.trim() ? t('global.yes') : ''),
                 {
                     id: 'authenticatedPerson',
                     header: () => {
