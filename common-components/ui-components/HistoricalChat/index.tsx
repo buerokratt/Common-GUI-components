@@ -186,9 +186,9 @@ const HistoricalChat: FC<ChatProps> = ({
   }, [messagesList, endUserFullName]);
 
   useEffect(() => {
-    if (!groupWrapperRef.current || !messageGroups) return;
-    groupWrapperRef.current.scrollTop = groupWrapperRef.current.scrollHeight;
-  }, [messageGroups]);
+    if (!groupWrapperRef.current) return;
+    groupWrapperRef.current.scrollTop = 0;
+  }, [chat.id]);
 
   const isEvent = (group: GroupedMessage) => {
     return (group.type === "event" || group.name.trim() === "" ||  group.messages.some((message) => message.event && message.event !== CHAT_EVENTS.GREETING));
