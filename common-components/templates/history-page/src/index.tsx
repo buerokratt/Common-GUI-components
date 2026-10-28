@@ -126,7 +126,7 @@ const loadQualitySettingsConfig = async (domain: string): Promise<QualitySetting
             readonly chatAnalysisBykResponseQuality: string; // can be an empty string if no qualities are defined
             readonly chatAnalysisFollowUpAction: string; // can be an empty string if no follow-up actions are defined
         };
-    }>('/configs/chat-analysis', {
+    }>('/configs/analysis/chat-analysis', {
         params: { domain },
     });
     return {
@@ -138,7 +138,7 @@ const loadQualitySettingsConfig = async (domain: string): Promise<QualitySetting
 }
 
 const loadFeedbackConfig = async (): Promise<FeedbackConfig> => {
-    const response = await apiDev.get('/configs/feedback', {
+    const response = await apiDev.get('/configs/analysis/feedback', {
         params: { domain: GLOBAL_FEEDBACK_CONFIG_DOMAIN },
     });
 
@@ -392,7 +392,7 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
         return userWidgetDomains.data?.find(domain => domain.url === selectedChat?.endUserUrl)?.id ?? null;
     }, [selectedChat]);
     const qualitySettingsConfigQuery = useQuery<QualitySettingsConfig>({
-        queryKey: ['configs/chat-analysis', selectedChatDomainUuid ?? GLOBAL_FEEDBACK_CONFIG_DOMAIN],
+        queryKey: ['configs/analysis/chat-analysis', selectedChatDomainUuid ?? GLOBAL_FEEDBACK_CONFIG_DOMAIN],
         queryFn: () => loadQualitySettingsConfig(selectedChatDomainUuid ? selectedChatDomainUuid : GLOBAL_FEEDBACK_CONFIG_DOMAIN),
     });
 
@@ -1104,12 +1104,12 @@ const ChatHistory: FC<PropsWithChildren<HistoryProps>> = ({
     };
 
     const globalFeedbackConfigQuery = useQuery<FeedbackConfig>({
-        queryKey: ['configs/feedback', GLOBAL_FEEDBACK_CONFIG_DOMAIN],
+        queryKey: ['configs/analysis/feedback', GLOBAL_FEEDBACK_CONFIG_DOMAIN],
         queryFn: loadFeedbackConfig,
     });
 
     const tableHeaderQualitySettingsConfigQuery = useQuery<QualitySettingsConfig>({
-        queryKey: ['configs/chat-analysis', GLOBAL_FEEDBACK_CONFIG_DOMAIN],
+        queryKey: ['configs/analysis/chat-analysis', GLOBAL_FEEDBACK_CONFIG_DOMAIN],
         queryFn: () => loadQualitySettingsConfig(GLOBAL_FEEDBACK_CONFIG_DOMAIN),
     });
 
