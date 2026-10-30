@@ -4,6 +4,10 @@ All changes to this project will be documented in this file.
 
 ## Template [MajorVersion.MediterraneanVersion.MinorVersion] - DD-MM-YYYY
 
+## [0.0.74] - 28-10-2026
+
+- Modified conversations to be scrolled to the top
+
 ## [0.0.73] - 27-10-2026
 
 - Modified chat analysis path
